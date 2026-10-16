@@ -52,12 +52,17 @@ export default function App() {
 
     const tryFetch = async () => {
       const pathsToTry = [
-        `/${currentDataset.id}`,
-        `/${currentDataset.id.toLowerCase()}`,
+        `/data/csv/${currentDataset.id}`,
+        `/data/csv/${currentDataset.id.toLowerCase()}`,
+        `/csv/${currentDataset.id}`,
+        `/csv/${currentDataset.id.toLowerCase()}`,
         `/data/${currentDataset.id}`,
         `/data/${currentDataset.id.toLowerCase()}`,
+        `/${currentDataset.id}`,
+        `/${currentDataset.id.toLowerCase()}`,
+        `./data/csv/${currentDataset.id}`,
+        `./csv/${currentDataset.id}`,
         `./${currentDataset.id}`,
-        `./data/${currentDataset.id}`,
       ];
 
       for (const path of pathsToTry) {

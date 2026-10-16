@@ -1,11 +1,16 @@
 # ZPA26-27Gr5 - Portal Analityczny Notowań Paliw Hurtowych PKN ORLEN
 
-Aplikacja webowa (React + Vite) do przeglądania, filtrowania, analizy oraz selektywnego eksportu danych o hurtowych cenach paliw PKN ORLEN (m.in. `Orlen_pb95_2026.csv`).
+Aplikacja webowa (React + Vite) do przeglądania, filtrowania, analizy oraz selektywnego eksportu danych o hurtowych cenach paliw PKN ORLEN (m.in. `data/csv/orlen_pb95_2026.csv`).
+
+## Struktura katalogu `data/`
+
+- `data/csv/` - pliki z danymi notowań cen paliw (`orlen_pb95_2026.csv`, `orlen_on_2026.csv`)
+- `data/images/` - oficjalne logotypy PKN ORLEN (`Orlen_eagle_logo.svg`, `Orlen_wordmark_logo.svg`)
 
 ## Funkcjonalności
 
 - **Wybór zbioru danych w menu głównym (na środku góry ekranu)**:
-  - Przełącznik pomiędzy oficjalnymi notowaniami: `Orlen_pb95_2026.csv` (Eurosuper 95), `Orlen_on_2026.csv` (Ekodiesel ON)
+  - Przełącznik pomiędzy oficjalnymi notowaniami z `data/csv/`: `Orlen_pb95_2026.csv` (Eurosuper 95), `Orlen_on_2026.csv` (Ekodiesel ON)
   - Możliwość bezpośredniego wgrania dowolnego własnego pliku CSV z dysku
 - **Karty podsumowań i statystyk**:
   - Ostatnia cena notowania wraz z przeliczeniem na zł/litr netto oraz dzienną zmianą
