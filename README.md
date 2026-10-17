@@ -52,3 +52,6 @@ Zmienić `#E11A27` na `#E30613, schować projekt wyszukiwarki csv
 P.S.2 podział obowiązków do plau pozyskiwania danych i lepiej sformuować terminy itp. Tezy uzyskane, kryterium sukcesu.
 Przypisanie ról do osób ogólnie kto co bedzie robił. w dics dane.md opisanie ile co i jak bedzie.
 notatka na nastepnie spotkanie. zmienione data aby była wszystkie isiby
+
+###NOWY CEL ANALIZY
+sprawdzenie cen detalicznych benzyny. po jakiej cenie kupuje transport. co wpływa na ceny detaliczne produktów codziennego użytku. Jak zmienia się jakość życia jeśli cena benzyny jest niepewna lub rośnie? sprawdzic ceny benzyzy oraz ceny produktów z koszyka potrzeb i sprawdzic jak się zmieniają. jeśli się cena na półce nie zmienia to sprawdzić czy shrinflacja nie ma miejsca zmniejszanie ilości produktów względem tego na co może sobie konsument pozwolić. jak zmienia się dla konsumenta stosunek życia z dniem poprezdnim? nie koniecznie ile zapłaci za zatankowanie baku a wszystko inne. jak cena zmiany paliwa ma znaczenie na wszystkie inne codzienne produkty
