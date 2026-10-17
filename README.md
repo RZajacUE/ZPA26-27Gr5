@@ -48,3 +48,7 @@ npm run build
 Serwer deweloperski uruchamia się domyślnie pod adresem: `http://localhost:5173/`.
 
 Zmienić `#E11A27` na `#E30613, schować projekt wyszukiwarki csv
+
+P.S.2 podział obowiązków do plau pozyskiwania danych i lepiej sformuować terminy itp. Tezy uzyskane, kryterium sukcesu.
+Przypisanie ról do osób ogólnie kto co bedzie robił. w dics dane.md opisanie ile co i jak bedzie.
+notatka na nastepnie spotkanie. zmienione data aby była wszystkie isiby
