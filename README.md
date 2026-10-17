@@ -46,3 +46,5 @@ npm run build
 ```
 
 Serwer deweloperski uruchamia się domyślnie pod adresem: `http://localhost:5173/`.
+
+Zmienić `#E11A27` na `#E30613, schować projekt wyszukiwarki csv
