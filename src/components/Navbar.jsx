@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { FaUpload, FaGasPump, FaFolderOpen } from 'react-icons/fa6';
+import { FaUpload, FaGasPump, FaChartPie } from 'react-icons/fa6';
 import { OrlenAppLogo, OrlenMainLogo } from './OrlenLogos';
 
 export default function Navbar({ 
@@ -7,7 +7,8 @@ export default function Navbar({
   onSelectDataset, 
   onCustomFileUpload,
   recordCount,
-  isLoading
+  isLoading,
+  onTogglePortal,
 }) {
   const fileInputRef = useRef(null);
 
@@ -111,6 +112,17 @@ export default function Navbar({
           >
             <FaUpload size={14} />
             <span className="btn-text">Wgraj CSV</span>
+          </button>
+
+          {/* GUS BDL Mode Toggle */}
+          <button
+            type="button"
+            className="btn-switch-to-gus"
+            onClick={() => onTogglePortal?.('GUS')}
+            title="Przełącz do modułu GUS BDL — Koszyk Konsumencki"
+          >
+            <FaChartPie size={14} />
+            <span className="btn-text">GUS BDL →</span>
           </button>
         </div>
       </div>

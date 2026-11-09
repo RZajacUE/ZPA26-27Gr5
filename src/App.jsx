@@ -6,9 +6,35 @@ import ControlsBar from './components/ControlsBar';
 import DataTable from './components/DataTable';
 import { OrlenMainLogo, OrlenAppLogo } from './components/OrlenLogos';
 import { parseCsv, downloadRecordsAsCsv } from './utils/csvParser';
+import GusPortal from './components/GusPortal';
 import './App.css';
 
 export default function App() {
+  // ── Portal mode toggle: 'ORLEN' | 'GUS' ───────────────────────────────────
+  const [activePortal, setActivePortal] = useState('ORLEN');
+
+  const handleTogglePortal = (mode) => {
+    setActivePortal(mode);
+  };
+
+  // If GUS portal active → render it exclusively (keeps ORLEN state alive via its own scope)
+  if (activePortal === 'GUS') {
+    return (
+      <GusPortal
+        activePortal={activePortal}
+        onTogglePortal={handleTogglePortal}
+      />
+    );
+  }
+
+  // ── ORLEN Portal ───────────────────────────────────────────────────────────
+  return <OrlenApp onTogglePortal={handleTogglePortal} />;
+}
+
+/**
+ * Separated inner component so hooks are always called unconditionally.
+ */
+function OrlenApp({ onTogglePortal }) {
   // Dataset state
   const [currentDataset, setCurrentDataset] = useState({
     id: 'Orlen_pb95_2026.csv',
@@ -164,7 +190,6 @@ export default function App() {
     } else if (activeRule === 'LOW_PRICE') {
       result = result.filter(r => (r._parsed?.price || 0) < 4500 && (r._parsed?.price || 0) > 0);
     } else if (activeRule === 'RECENT_30') {
-      // Last 30 records
       result = result.slice(-30);
     }
 
@@ -230,13 +255,12 @@ export default function App() {
     setSortConfig(prev => {
       if (prev.key === key) {
         if (prev.direction === 'asc') return { key, direction: 'desc' };
-        if (prev.direction === 'desc') return { key: 'date', direction: 'desc' }; // default reset
+        if (prev.direction === 'desc') return { key: 'date', direction: 'desc' };
       }
       return { key, direction: 'asc' };
     });
   };
 
-  // Selection handlers:
   // Individual toggle
   const handleToggleRecord = (recordId) => {
     setSelectedIds(prev => {
@@ -250,11 +274,9 @@ export default function App() {
     });
   };
 
-  // Selection strictly restricted to currently visible records (as requested!)
   const allVisibleSelected = sortedRecords.length > 0 && sortedRecords.every(r => selectedIds.has(r._id));
   const someVisibleSelected = sortedRecords.some(r => selectedIds.has(r._id));
 
-  // "Select All Visible" -> selects ONLY records currently matching the search and active filter rule!
   const handleSelectAllVisible = () => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -264,7 +286,6 @@ export default function App() {
     showToast(`Zaznaczono wszystkie ${sortedRecords.length} widoczne rekordy`);
   };
 
-  // "Deselect Visible" -> unchecks only records in current view
   const handleDeselectVisible = () => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -273,7 +294,6 @@ export default function App() {
     });
   };
 
-  // Master checkbox toggle in table header
   const handleToggleAllVisible = () => {
     if (allVisibleSelected) {
       handleDeselectVisible();
@@ -282,13 +302,11 @@ export default function App() {
     }
   };
 
-  // Clear all selections entirely
   const handleClearAllSelected = () => {
     setSelectedIds(new Set());
     showToast('Wyczyszczono wszystkie zaznaczenia');
   };
 
-  // Download selected records as a new CSV
   const handleDownloadSelected = () => {
     const selectedRecordsList = allRecords.filter(r => selectedIds.has(r._id));
     if (selectedRecordsList.length === 0) {
@@ -298,12 +316,11 @@ export default function App() {
 
     const todayStr = new Date().toISOString().slice(0, 10);
     const filename = `orlen_${currentDataset.name.replace(/\.csv$/i, '')}_wybrane_${selectedRecordsList.length}_rekordow_${todayStr}.csv`;
-    
+
     downloadRecordsAsCsv(selectedRecordsList, headers, filename, ';');
     showToast(`Pobrano ${selectedRecordsList.length} wybranych rekordów jako ${filename}`);
   };
 
-  // Download currently visible records
   const handleDownloadVisible = () => {
     if (sortedRecords.length === 0) {
       showToast('Brak widocznych rekordów do pobrania', 'error');
@@ -312,12 +329,11 @@ export default function App() {
 
     const todayStr = new Date().toISOString().slice(0, 10);
     const filename = `orlen_${currentDataset.name.replace(/\.csv$/i, '')}_widok_${sortedRecords.length}_rekordow_${todayStr}.csv`;
-    
+
     downloadRecordsAsCsv(sortedRecords, headers, filename, ';');
     showToast(`Pobrano ${sortedRecords.length} widocznych rekordów jako ${filename}`);
   };
 
-  // Reset filters helper
   const handleResetFilters = () => {
     setSearchQuery('');
     setActiveRule('ALL');
@@ -325,13 +341,14 @@ export default function App() {
 
   return (
     <div className="orlen-app-container">
-      {/* Top Navigation with Dropdown in Center */}
+      {/* Top Navigation with Dropdown in Center + GUS BDL toggle button */}
       <Navbar
         currentDataset={currentDataset}
         onSelectDataset={handleSelectDataset}
         onCustomFileUpload={handleCustomFileUpload}
         recordCount={allRecords.length}
         isLoading={isLoading}
+        onTogglePortal={onTogglePortal}
       />
 
       <main className="orlen-main-content">

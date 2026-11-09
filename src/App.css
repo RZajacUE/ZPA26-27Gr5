@@ -1236,3 +1236,34 @@
     justify-content: center;
   }
 }
+
+
+/* ==========================================================================
+   GUS BDL PORTAL SWITCH BUTTON — added to ORLEN Navbar
+   ========================================================================== */
+
+.btn-switch-to-gus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  background: #007B3B;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  white-space: nowrap;
+}
+
+.btn-switch-to-gus:hover {
+  background: #005C2C;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 123, 59, 0.3);
+}
+
+.btn-switch-to-gus .btn-text {
+  font-size: 0.78rem;
+}
