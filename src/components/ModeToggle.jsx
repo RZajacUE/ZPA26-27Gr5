@@ -1,35 +1,39 @@
 import React from 'react';
-import { FaGasPump, FaChartPie } from 'react-icons/fa6';
+import { OrlenAppLogo } from './OrlenLogos';
+import { GusEmblem } from './GusLogos';
 
-export default function ModeToggle({ activePortal, onTogglePortal }) {
+export default function ModeToggle({ activePortal, onTogglePortal, className = '' }) {
   return (
-    <div className="portal-mode-toggle-container">
-      <div className="portal-mode-toggle" role="tablist" aria-label="Wybierz moduł analityczny">
+    <div className={`portal-mode-toggle-wrapper ${className}`}>
+      <div className="portal-mode-toggle" role="tablist" aria-label="Wybierz portal">
         <button
           type="button"
           role="tab"
           aria-selected={activePortal === 'ORLEN'}
-          className={`portal-toggle-btn ${activePortal === 'ORLEN' ? 'toggle-active orlen-active' : ''}`}
+          className={`portal-toggle-pill ${activePortal === 'ORLEN' ? 'active-orlen' : ''}`}
           onClick={() => onTogglePortal('ORLEN')}
+          title="Przełącz na portal notowań hurtowych PKN ORLEN"
         >
-          <FaGasPump size={14} className="toggle-icon" />
-          <span className="toggle-label">PKN ORLEN</span>
-          <span className="toggle-sub">Ceny Paliw</span>
+          <div className="toggle-brand-logo">
+            <OrlenAppLogo height={18} alt="ORLEN" />
+          </div>
+          <span className="toggle-brand-name">ORLEN</span>
         </button>
 
         <button
           type="button"
           role="tab"
           aria-selected={activePortal === 'GUS'}
-          className={`portal-toggle-btn ${activePortal === 'GUS' ? 'toggle-active gus-active' : ''}`}
+          className={`portal-toggle-pill ${activePortal === 'GUS' ? 'active-gus' : ''}`}
           onClick={() => onTogglePortal('GUS')}
+          title="Przełącz na portal Banku Danych Lokalnych GUS"
         >
-          <FaChartPie size={14} className="toggle-icon" />
-          <span className="toggle-label">GUS BDL</span>
-          <span className="toggle-sub">Koszyk Konsumencki</span>
+          <div className="toggle-brand-logo">
+            <GusEmblem height={18} alt="GUS" />
+          </div>
+          <span className="toggle-brand-name">GUS BDL</span>
         </button>
       </div>
     </div>
   );
 }
-

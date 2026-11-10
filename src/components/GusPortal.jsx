@@ -18,11 +18,18 @@ import SlideMenu from './SlideMenu';
 import TableOfContents from './TableOfContents';
 import { FaCircleCheck, FaCircleXmark } from 'react-icons/fa6';
 
-export default function GusPortal({ activePortal, onTogglePortal }) {
+export default function GusPortal({ 
+  activePortal, 
+  onTogglePortal, 
+  isSlideMenuOpen: propSlideMenuOpen, 
+  setIsSlideMenuOpen: propSetSlideMenuOpen 
+}) {
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   const [viewMode, setViewMode] = useState('SIMPLIFIED');
-  const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false);
+  const [internalSlideMenuOpen, setInternalSlideMenuOpen] = useState(false);
+  const isSlideMenuOpen = propSlideMenuOpen !== undefined ? propSlideMenuOpen : internalSlideMenuOpen;
+  const setIsSlideMenuOpen = propSetSlideMenuOpen || setInternalSlideMenuOpen;
   const [activeTocSection, setActiveTocSection] = useState('sec-gus-stats');
   const [startDate, setStartDate] = useState('2018-01-01');
   const [endDate, setEndDate] = useState(todayStr);

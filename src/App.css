@@ -3608,7 +3608,7 @@
 /* Highly visible CSV separator */
 .separator-bold {
   font-weight: 900;
-  font-size: 1rem;
+  font-size: 1`rem;
   color: var(--color-text-main);
   padding: 0 4px;
   line-height: 0.8;

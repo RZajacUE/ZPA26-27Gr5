@@ -21,6 +21,7 @@ import {
 } from 'react-icons/fa6';
 import { OrlenAppLogo } from './OrlenLogos';
 import { GusLogo, GusEmblem } from './GusLogos';
+import ModeToggle from './ModeToggle';
 import { 
   DEFAULT_GUS_API_KEY, 
   isValidGusApiKey, 
@@ -165,32 +166,13 @@ export default function SlideMenu({
         onClick={(e) => e.stopPropagation()}
         aria-label="Panel boczny opcji i słownika"
       >
-        {/* Header with Dual-Portal Toggle */}
+        {/* Header with Redesigned Portal Toggle */}
         <div className="slide-menu-header">
-          <div className="menu-portal-toggle-group" role="tablist" aria-label="Przełącznik portalu">
-            <button
-              type="button"
-              className={`menu-portal-toggle-btn ${activePortal === 'ORLEN' ? 'active-orlen' : ''}`}
-              onClick={() => onTogglePortal('ORLEN')}
-              title="Przełącz do portalu PKN ORLEN"
-            >
-              <div className="toggle-logo-box">
-                <OrlenAppLogo height={20} alt="ORLEN" />
-              </div>
-              <span className="toggle-label">PKN ORLEN</span>
-            </button>
-            <button
-              type="button"
-              className={`menu-portal-toggle-btn ${activePortal === 'GUS' ? 'active-gus' : ''}`}
-              onClick={() => onTogglePortal('GUS')}
-              title="Przełącz do portalu GUS BDL"
-            >
-              <div className="toggle-logo-box">
-                <GusEmblem height={20} alt="GUS" />
-              </div>
-              <span className="toggle-label">GUS BDL</span>
-            </button>
-          </div>
+          <ModeToggle
+            activePortal={activePortal}
+            onTogglePortal={onTogglePortal}
+            className="menu-header-toggle"
+          />
 
           <button 
             type="button" 

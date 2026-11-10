@@ -14,6 +14,7 @@ import './App.css';
 
 export default function App() {
   const [activePortal, setActivePortal] = useState('ORLEN');
+  const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false);
 
   const handleTogglePortal = (mode) => {
     setActivePortal(mode);
@@ -24,16 +25,26 @@ export default function App() {
       <GusPortal
         activePortal={activePortal}
         onTogglePortal={handleTogglePortal}
+        isSlideMenuOpen={isSlideMenuOpen}
+        setIsSlideMenuOpen={setIsSlideMenuOpen}
       />
     );
   }
 
-  return <OrlenApp onTogglePortal={handleTogglePortal} />;
+  return (
+    <OrlenApp 
+      onTogglePortal={handleTogglePortal} 
+      isSlideMenuOpen={isSlideMenuOpen}
+      setIsSlideMenuOpen={setIsSlideMenuOpen}
+    />
+  );
 }
 
-function OrlenApp({ onTogglePortal }) {
+function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSlideMenuOpen: propSetSlideMenuOpen }) {
   const [viewMode, setViewMode] = useState('SIMPLIFIED');
-  const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false);
+  const [internalSlideMenuOpen, setInternalSlideMenuOpen] = useState(false);
+  const isSlideMenuOpen = propSlideMenuOpen !== undefined ? propSlideMenuOpen : internalSlideMenuOpen;
+  const setIsSlideMenuOpen = propSetSlideMenuOpen || setInternalSlideMenuOpen;
   const fileInputRef = useRef(null);
 
   const [currentDataset, setCurrentDataset] = useState({
