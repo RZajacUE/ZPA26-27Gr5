@@ -5,11 +5,10 @@ import {
   FaArrowTrendUp, 
   FaArrowTrendDown,
   FaGasPump,
-  FaCalendarWeek,
   FaUtensils
 } from 'react-icons/fa6';
 
-export default function GusStatsCards({ summary, frequency, startDate, endDate }) {
+export default function GusStatsCards({ summary, startDate, endDate }) {
   if (!summary) return null;
 
   const {

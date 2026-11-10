@@ -1,20 +1,42 @@
-/**
- * GUS BDL (Bank Danych Lokalnych) API Service & Consumer Basket Engine
- * Główny Urząd Statystyczny - Statystyka cen detalicznych i koszyka konsumpcyjnego
- */
-
-export const DEFAULT_GUS_API_KEY = 
-  import.meta.env.VITE_GUS_API_KEY || 
-  import.meta.env.VITE_BDL_API_KEY || 
+                     export const DEFAULT_GUS_API_KEY = 
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GUS_API_KEY) || 
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_BDL_API_KEY) || 
   '2ead5bb5-9ea5-4686-66f1-08df3e66a85a';
+
+export const UUID_API_KEY_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+export function isValidGusApiKey(key) {
+  if (!key) return false;
+  return UUID_API_KEY_REGEX.test(key.trim());
+}
+
+export function maskApiKey(key, showFull = false) {
+  if (!key) return '••••••••-••••-••••-••••-••••••••••••';
+  if (showFull) return key;
+  const clean = key.trim();
+  if (clean.length < 8) return '••••••••••••';
+  return `${clean.slice(0, 4)}••••-••••-••••-••••••••${clean.slice(-4)}`;
+}
 
 export const GUS_BDL_DIRECT_URL = 'https://bdl.stat.gov.pl/api/v1';
 export const GUS_BDL_PROXY_URL = '/gus-api';
 
-/**
- * Standard Polish Consumer Basket Products (GUS Reprezentanci Towarów i Usług)
- * Real historical anchor prices per year based on GUS Statistical Yearbooks & BDL (2015-2026)
- */
+// Average monthly earnings in Poland (GUS enterprise sector)
+export const GUS_EARNINGS_HISTORY = {
+  2015: { gross: 4121, net: 2950 },
+  2016: { gross: 4277, net: 3060 },
+  2017: { gross: 4530, net: 3230 },
+  2018: { gross: 4852, net: 3450 },
+  2019: { gross: 5182, net: 3700 },
+  2020: { gross: 5411, net: 3900 },
+  2021: { gross: 5889, net: 4250 },
+  2022: { gross: 6653, net: 4850 },
+  2023: { gross: 7444, net: 5420 },
+  2024: { gross: 8147, net: 5900 },
+  2025: { gross: 8720, net: 6310 },
+  2026: { gross: 9240, net: 6680 },
+};
+
 export const GUS_BASKET_PRODUCTS = [
   {
     id: 'bread',
@@ -186,9 +208,6 @@ export const GUS_BASKET_PRODUCTS = [
   }
 ];
 
-/**
- * Calculate median of an array of numeric values
- */
 export function calculateMedian(numbers) {
   if (!numbers || numbers.length === 0) return 0;
   const sorted = [...numbers].sort((a, b) => a - b);
@@ -199,14 +218,25 @@ export function calculateMedian(numbers) {
   return (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-/**
- * Interpolate realistic price for a specific date (year + fraction of year)
- * Adds natural monthly seasonal fluctuations (e.g. potatoes/fruit seasonal cycles, fuel price spikes)
- */
+export function getEarningsForDate(dateObj) {
+  const year = dateObj.getFullYear();
+  const clampedYear = Math.max(2015, Math.min(2026, year));
+  const current = GUS_EARNINGS_HISTORY[clampedYear] || GUS_EARNINGS_HISTORY[2024];
+  const next = GUS_EARNINGS_HISTORY[Math.min(2026, clampedYear + 1)] || current;
+
+  const dayOfYear = Math.floor((dateObj - new Date(year, 0, 1)) / (1000 * 60 * 60 * 24));
+  const frac = dayOfYear / 365.25;
+
+  const gross = Math.round(current.gross + (next.gross - current.gross) * frac);
+  const net = Math.round(current.net + (next.net - current.net) * frac);
+  const hourlyWage = Math.round((net / 168) * 100) / 100;
+
+  return { gross, net, hourlyWage, year: clampedYear };
+}
+
 function interpolateProductPrice(product, dateObj) {
   const year = dateObj.getFullYear();
-  const month = dateObj.getMonth(); // 0 - 11
-  const day = dateObj.getDate();
+  const month = dateObj.getMonth();
   const dayOfYear = Math.floor((dateObj - new Date(year, 0, 1)) / (1000 * 60 * 60 * 24));
   const yearFraction = dayOfYear / 365.25;
 
@@ -218,20 +248,15 @@ function interpolateProductPrice(product, dateObj) {
   const priceBase = product.history[clampedYear] ?? product.history[2024];
   const priceNext = product.history[nextYear] ?? priceBase;
 
-  // Linear progression over the year
   let price = priceBase + (priceNext - priceBase) * yearFraction;
 
-  // Add category-specific seasonal nuance
   if (product.category === 'Warzywa' || product.category === 'Owoce') {
-    // Vegetables/fruits are cheaper in autumn (Aug-Oct), pricier in spring (Apr-June)
     const seasonalWave = Math.sin((month - 2) * (Math.PI / 6));
     price += price * 0.08 * seasonalWave;
   } else if (product.category === 'Nabiał / Tłuszcze' && product.id === 'butter') {
-    // Butter peaks in winter/holidays
-    const seasonalWave = Math.cos((month) * (Math.PI / 6));
+    const seasonalWave = Math.cos(month * (Math.PI / 6));
     price += price * 0.04 * seasonalWave;
   } else if (product.category === 'Paliwa detaliczne') {
-    // Fuel has small realistic weekly oscillations
     const weekWave = Math.sin((dayOfYear / 7) * 2 * Math.PI) * 0.03;
     price += weekWave;
   }
@@ -239,14 +264,10 @@ function interpolateProductPrice(product, dateObj) {
   return Math.round(price * 100) / 100;
 }
 
-/**
- * Generates consumer basket data chunks based on user controls
- * Supports frequencies: 'DAYS', 'WEEKS', 'MONTHS'
- */
 export function generateBasketChunks({
   startDate = '2018-01-01',
   endDate = '2026-11-09',
-  frequency = 'WEEKS', // 'DAYS' | 'WEEKS' | 'MONTHS'
+  frequency = 'WEEKS',
   selectedProductIds = 'ALL',
 }) {
   const start = new Date(startDate);
@@ -267,17 +288,16 @@ export function generateBasketChunks({
   const chunks = [];
   let current = new Date(start);
 
-  // Compute baseline basket total at start date for % change index
   const basePrices = activeProducts.map(p => interpolateProductPrice(p, start));
   const baseBasketTotal = basePrices.reduce((acc, v) => acc + v, 0);
 
   let chunkIndex = 1;
+  let previousNetSalary = null;
 
   while (current <= end) {
     const chunkDate = new Date(current);
     const dateStr = chunkDate.toISOString().slice(0, 10);
 
-    // Compute prices of each active product for this chunk date
     const productPrices = {};
     const priceValues = [];
 
@@ -288,10 +308,7 @@ export function generateBasketChunks({
     });
 
     const basketTotal = Math.round(priceValues.reduce((a, b) => a + b, 0) * 100) / 100;
-    
-    // Weak / Weekly Median Price (mediana cen produktów w koszyku w danym okresie/tygodniu)
     const weakMedianPrice = Math.round(calculateMedian(priceValues) * 100) / 100;
-    
     const meanPrice = Math.round((basketTotal / priceValues.length) * 100) / 100;
     const minPrice = Math.min(...priceValues);
     const maxPrice = Math.max(...priceValues);
@@ -299,7 +316,18 @@ export function generateBasketChunks({
       ? Math.round(((basketTotal - baseBasketTotal) / baseBasketTotal) * 1000) / 10 
       : 0;
 
-    // Formatting label for chunk
+    // Consumer earnings and budget share calculations
+    const earnings = getEarningsForDate(chunkDate);
+    const monthlyBasketEstimate = Math.round(basketTotal * 4 * 100) / 100; // 4 baskets per month
+    const budgetSharePercent = Math.round((monthlyBasketEstimate / earnings.net) * 1000) / 10;
+    const workHoursForBasket = Math.round((basketTotal / earnings.hourlyWage) * 10) / 10;
+
+    let earningsChangeMom = 0;
+    if (previousNetSalary !== null && previousNetSalary > 0) {
+      earningsChangeMom = Math.round(((earnings.net - previousNetSalary) / previousNetSalary) * 1000) / 10;
+    }
+    previousNetSalary = earnings.net;
+
     let chunkLabel = dateStr;
     if (frequency === 'WEEKS') {
       const weekNumber = Math.ceil((((chunkDate - new Date(chunkDate.getFullYear(), 0, 1)) / 86400000) + 1) / 7);
@@ -326,12 +354,16 @@ export function generateBasketChunks({
       maxPrice,
       percentChange,
       productPrices,
-      productsCount: activeProducts.length
+      productsCount: activeProducts.length,
+      earnings,
+      budgetSharePercent,
+      workHoursForBasket,
+      earningsChangeMom,
+      monthlyBasketEstimate
     });
 
     chunkIndex++;
 
-    // Advance current date according to chosen frequency
     if (frequency === 'DAYS') {
       current.setDate(current.getDate() + 1);
     } else if (frequency === 'WEEKS') {
@@ -341,7 +373,6 @@ export function generateBasketChunks({
     }
   }
 
-  // Calculate summary metrics across the whole range
   const firstChunk = chunks[0] || {};
   const lastChunk = chunks[chunks.length - 1] || {};
   const allMedians = chunks.map(c => c.weakMedianPrice);
@@ -349,7 +380,11 @@ export function generateBasketChunks({
     ? Math.round((allMedians.reduce((a, b) => a + b, 0) / allMedians.length) * 100) / 100 
     : 0;
 
-  // Comparison: Fuel vs Food price growth over the period
+  // Earnings growth from period start to end
+  const startNet = firstChunk.earnings?.net || 1;
+  const endNet = lastChunk.earnings?.net || 1;
+  const totalEarningsGrowthPct = Math.round(((endNet - startNet) / startNet) * 1000) / 10;
+
   const fuelProd = activeProducts.find(p => p.id === 'gasoline_pb95') || activeProducts.find(p => p.id === 'diesel_on');
   const foodProd = activeProducts.find(p => p.id === 'bread') || activeProducts.find(p => p.id === 'butter');
   
@@ -380,14 +415,17 @@ export function generateBasketChunks({
     activeProductsCount: activeProducts.length,
     fuelGrowthPct,
     foodGrowthPct,
+    startNetSalary: startNet,
+    endNetSalary: endNet,
+    totalEarningsGrowthPct,
+    latestBudgetShare: lastChunk.budgetSharePercent || 0,
+    latestWorkHours: lastChunk.workHoursForBasket || 0,
+    realWageVsInflationDiff: Math.round((totalEarningsGrowthPct - (lastChunk.percentChange || 0)) * 10) / 10
   };
 
   return { chunks, summary, activeProducts };
 }
 
-/**
- * Test connectivity to official GUS BDL API
- */
 export async function testGusBdlConnection(apiKey = DEFAULT_GUS_API_KEY) {
   const endpoints = [
     `${GUS_BDL_PROXY_URL}/subjects?lang=pl&format=json&page-size=1`,
@@ -409,41 +447,39 @@ export async function testGusBdlConnection(apiKey = DEFAULT_GUS_API_KEY) {
         return {
           success: true,
           status: 'CONNECTED',
-          message: 'Pomyślnie nawiązano połączenie z API BDL GUS',
+          message: 'Połączono z API BDL GUS',
           data
         };
       }
-    } catch (err) {
-      // try next
+    } catch {
+      // try next fallback
     }
   }
 
   return {
     success: false,
     status: 'OFFLINE_FALLBACK',
-    message: 'Brak bezpośredniego połączenia z serwerem BDL (użyto uwierzytelnionych danych GUS BDL)'
+    message: 'Brak bezpośredniego połączenia z serwerem BDL (użyto danych GUS)'
   };
 }
 
-/**
- * Generate CSV file from GUS Basket Chunks and trigger browser download
- */
 export function exportGusBasketToCsv(chunks, activeProducts, filename = 'gus_bdl_koszyk_konsumencki.csv') {
   if (!chunks || chunks.length === 0) return;
 
   const separator = ';';
   
-  // Build header row
   const headerCols = [
     'Data_Okres',
     'Czestotliwosc',
     'Etykieta_Okresu',
     'Wartosc_Koszyka_PLN',
-    'Mediana_Tygodniowa_Okresowa_PLN',
+    'Mediana_Tygodniowa_PLN',
     'Srednia_Cena_PLN',
-    'Cena_Min_PLN',
-    'Cena_Max_PLN',
-    'Zmiana_Wzgledem_Poczatku_Procent',
+    'Srednia_Pensja_Netto_PLN',
+    'Udzial_W_Budzecie_Procent',
+    'Godziny_Pracy_Na_Koszyk',
+    'Zmiana_Pensji_Mom_Procent',
+    'Zmiana_Koszyka_Procent',
     ...activeProducts.map(p => `Cena_${p.name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, '')}_PLN`)
   ];
 
@@ -457,8 +493,10 @@ export function exportGusBasketToCsv(chunks, activeProducts, filename = 'gus_bdl
       chunk.basketTotal.toFixed(2).replace('.', ','),
       chunk.weakMedianPrice.toFixed(2).replace('.', ','),
       chunk.meanPrice.toFixed(2).replace('.', ','),
-      chunk.minPrice.toFixed(2).replace('.', ','),
-      chunk.maxPrice.toFixed(2).replace('.', ','),
+      chunk.earnings?.net || '',
+      `${chunk.budgetSharePercent.toFixed(1).replace('.', ',')}%`,
+      chunk.workHoursForBasket.toFixed(1).replace('.', ','),
+      `${chunk.earningsChangeMom.toFixed(1).replace('.', ',')}%`,
       `${chunk.percentChange.toFixed(1).replace('.', ',')}%`,
       ...activeProducts.map(p => {
         const val = chunk.productPrices[p.id];
@@ -479,4 +517,3 @@ export function exportGusBasketToCsv(chunks, activeProducts, filename = 'gus_bdl
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
-

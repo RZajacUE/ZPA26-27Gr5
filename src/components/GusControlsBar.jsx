@@ -94,7 +94,7 @@ export default function GusControlsBar({
               title="Automatycznie ustaw do dnia dzisiejszego"
             >
               <FaClock size={12} />
-              <span>Do dziś (Present date)</span>
+              <span>Ustaw do dnia dzisiejszego</span>
               {isEndingPresent && <span className="active-pip">✓</span>}
             </button>
           </div>

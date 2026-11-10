@@ -1,49 +1,32 @@
 import React from 'react';
-import { GusEmblem, GusWordmark, GusBdlBadge } from './GusLogos';
+import { GusEmblem, GusBdlBadge } from './GusLogos';
 import { FaShieldHalved, FaFileCsv } from 'react-icons/fa6';
 
-export default function GusFooter({ onTogglePortal }) {
+export default function GusFooter() {
   return (
-    <footer className="gus-footer">
-      <div className="gus-footer-content">
-        <div className="footer-left">
-          <div className="footer-logo-group">
-            <GusEmblem height={26} alt="GUS Logo" />
-            <GusWordmark height={22} alt="GUS Wordmark" />
+    <footer className="unified-footer gus-footer-unified">
+      <div className="unified-footer-content">
+        <div className="footer-brand-col">
+          <div className="footer-logo-box">
+            <GusEmblem height={28} alt="GUS" />
+            <GusBdlBadge />
           </div>
-          <div className="footer-text-group">
-            <span className="footer-title">
-              Bank Danych Lokalnych (BDL) • Główny Urząd Statystyczny
-            </span>
-            <span className="footer-subtitle">
-              Portal analityczny cen detalicznych reprezentantów koszyka konsumpcyjnego i mediany tygodniowej
-            </span>
-          </div>
+          <span className="footer-desc-text">
+            Bank Danych Lokalnych (BDL) • Reprezentanci koszyka konsumpcyjnego i mediana tygodniowa
+          </span>
         </div>
 
-        <div className="footer-center">
-          <button
-            type="button"
-            className="footer-switch-btn"
-            onClick={() => onTogglePortal('ORLEN')}
-            title="Przełącz z powrotem do portalu PKN ORLEN"
-          >
-            ← Przejdź do Portalu Cen Hurtowych PKN ORLEN
-          </button>
-        </div>
-
-        <div className="footer-right">
-          <div className="footer-badge-item">
-            <FaShieldHalved size={13} />
-            <span>Klucz BDL API w .env: Aktywny</span>
+        <div className="footer-meta-col">
+          <div className="meta-pill">
+            <FaShieldHalved size={12} />
+            <span>Klucz BDL API: Zabezpieczony</span>
           </div>
-          <div className="footer-badge-item">
-            <FaFileCsv size={13} />
-            <span>Format eksportu: UTF-8 z BOM (Separator ;)</span>
+          <div className="meta-pill">
+            <FaFileCsv size={12} />
+            <span>Format: UTF-8 z BOM (separator <b className="separator-bold">;</b>)</span>
           </div>
         </div>
       </div>
     </footer>
   );
 }
-

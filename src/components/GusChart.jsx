@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { FaChartLine, FaCircleInfo, FaScaleBalanced } from 'react-icons/fa6';
+import { FaChartLine, FaCircleInfo } from 'react-icons/fa6';
 
-export default function GusChart({ chunks = [], frequency = 'WEEKS' }) {
+export default function GusChart({ chunks = [] }) {
   const [hoveredPoint, setHoveredPoint] = useState(null);
 
   // Sample or slice points for smooth SVG rendering if there are too many (e.g. daily)

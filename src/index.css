@@ -11,8 +11,8 @@
   --orlen-red-tint: #FFF4F5;
   --orlen-red-tint-border: #FFD0D4;
   --orlen-red-glow: rgba(225, 26, 39, 0.22);
-  --orlen-red-gradient: linear-gradient(135deg, #E11A27 0%, #B80F1B 100%);
-  --orlen-red-header-gradient: linear-gradient(135deg, #D40F1E 0%, #A30814 100%);
+  --orlen-red-gradient: #E11A27;
+  --orlen-red-header-gradient: #E11A27;
 
   /* Neutrals */
   --color-white: #FFFFFF;

@@ -4,7 +4,6 @@ import {
   FaSortUp, 
   FaSortDown, 
   FaMagnifyingGlass,
-  FaCheck,
   FaCalendarWeek,
   FaBasketShopping,
   FaScaleBalanced,
@@ -18,8 +17,7 @@ export default function GusDataTable({
   onToggleChunk,
   onToggleAllVisible,
   allVisibleSelected,
-  someVisibleSelected,
-  activeProducts = []
+  someVisibleSelected
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });

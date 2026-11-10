@@ -1,23 +1,24 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { FaCircleCheck, FaCircleXmark, FaTriangleExclamation } from 'react-icons/fa6';
 import Navbar from './components/Navbar';
 import StatsCards from './components/StatsCards';
 import ControlsBar from './components/ControlsBar';
 import DataTable from './components/DataTable';
+import OrlenSimplifiedView from './components/OrlenSimplifiedView';
+import SlideMenu from './components/SlideMenu';
+import TableOfContents from './components/TableOfContents';
 import { OrlenMainLogo, OrlenAppLogo } from './components/OrlenLogos';
 import { parseCsv, downloadRecordsAsCsv } from './utils/csvParser';
 import GusPortal from './components/GusPortal';
 import './App.css';
 
 export default function App() {
-  // ── Portal mode toggle: 'ORLEN' | 'GUS' ───────────────────────────────────
   const [activePortal, setActivePortal] = useState('ORLEN');
 
   const handleTogglePortal = (mode) => {
     setActivePortal(mode);
   };
 
-  // If GUS portal active → render it exclusively (keeps ORLEN state alive via its own scope)
   if (activePortal === 'GUS') {
     return (
       <GusPortal
@@ -27,40 +28,32 @@ export default function App() {
     );
   }
 
-  // ── ORLEN Portal ───────────────────────────────────────────────────────────
   return <OrlenApp onTogglePortal={handleTogglePortal} />;
 }
 
-/**
- * Separated inner component so hooks are always called unconditionally.
- */
 function OrlenApp({ onTogglePortal }) {
-  // Dataset state
+  const [viewMode, setViewMode] = useState('SIMPLIFIED');
+  const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false);
+  const fileInputRef = useRef(null);
+
   const [currentDataset, setCurrentDataset] = useState({
     id: 'Orlen_pb95_2026.csv',
     name: 'Orlen_pb95_2026.csv',
     isCustom: false,
   });
 
-  const [rawCsvText, setRawCsvText] = useState('');
   const [headers, setHeaders] = useState([]);
   const [allRecords, setAllRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Search, Filter, Sort state
   const [searchQuery, setSearchQuery] = useState('');
   const [activeRule, setActiveRule] = useState('ALL');
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState('50');
-
-  // Selection state: Set of selected record _ids
   const [selectedIds, setSelectedIds] = useState(new Set());
-
-  // Toast feedback
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -68,9 +61,8 @@ function OrlenApp({ onTogglePortal }) {
     setTimeout(() => setToast(null), 3800);
   };
 
-  // Load dataset when currentDataset changes
   useEffect(() => {
-    if (currentDataset.isCustom) return; // handled separately in file upload
+    if (currentDataset.isCustom) return;
 
     let isMounted = true;
     setIsLoading(true);
@@ -98,7 +90,6 @@ function OrlenApp({ onTogglePortal }) {
             const text = await resp.text();
             if (text && !text.trim().startsWith('<!DOCTYPE') && !text.trim().startsWith('<html')) {
               if (isMounted) {
-                setRawCsvText(text);
                 const { headers: parsedHeaders, records: parsedRecords } = parseCsv(text);
                 setHeaders(parsedHeaders);
                 setAllRecords(parsedRecords);
@@ -107,13 +98,13 @@ function OrlenApp({ onTogglePortal }) {
               }
             }
           }
-        } catch (err) {
-          // continue to next path
+        } catch {
+          // fallback to next path
         }
       }
 
       if (isMounted) {
-        setError(`Nie udało się załadować pliku ${currentDataset.id}. Upewnij się, że plik istnieje w katalogu.`);
+        setError(`Nie udało się załadować pliku ${currentDataset.id}.`);
         setIsLoading(false);
       }
     };
@@ -125,7 +116,6 @@ function OrlenApp({ onTogglePortal }) {
     };
   }, [currentDataset.id, currentDataset.isCustom]);
 
-  // Handle switching predefined datasets from dropdown
   const handleSelectDataset = (datasetId) => {
     if (datasetId === currentDataset.id) return;
     setCurrentDataset({
@@ -139,7 +129,6 @@ function OrlenApp({ onTogglePortal }) {
     setCurrentPage(1);
   };
 
-  // Handle custom file upload from disk
   const handleCustomFileUpload = (file) => {
     if (!file) return;
     setIsLoading(true);
@@ -149,7 +138,6 @@ function OrlenApp({ onTogglePortal }) {
       const text = e.target?.result;
       if (typeof text === 'string') {
         const { headers: parsedHeaders, records: parsedRecords } = parseCsv(text);
-        setRawCsvText(text);
         setHeaders(parsedHeaders);
         setAllRecords(parsedRecords);
         setCurrentDataset({
@@ -162,7 +150,7 @@ function OrlenApp({ onTogglePortal }) {
         setActiveRule('ALL');
         setCurrentPage(1);
         setIsLoading(false);
-        showToast(`Pomyślnie załadowano plik ${file.name} (${parsedRecords.length} wierszy)`);
+        showToast(`Załadowano plik ${file.name} (${parsedRecords.length} wierszy)`);
       }
     };
 
@@ -174,11 +162,9 @@ function OrlenApp({ onTogglePortal }) {
     reader.readAsText(file, 'UTF-8');
   };
 
-  // Filter records based on activeRule and searchQuery
   const filteredRecords = useMemo(() => {
     let result = [...allRecords];
 
-    // Apply rule filter
     if (activeRule === 'PB95') {
       result = result.filter(r => r._parsed?.symbol?.toLowerCase() === 'pb95' || r._parsed?.product?.toLowerCase().includes('eurosuper'));
     } else if (activeRule === 'ON') {
@@ -193,7 +179,6 @@ function OrlenApp({ onTogglePortal }) {
       result = result.slice(-30);
     }
 
-    // Apply search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(row => {
@@ -214,7 +199,6 @@ function OrlenApp({ onTogglePortal }) {
     return result;
   }, [allRecords, activeRule, searchQuery]);
 
-  // Sort filtered records
   const sortedRecords = useMemo(() => {
     if (!sortConfig.key) return filteredRecords;
 
@@ -250,7 +234,6 @@ function OrlenApp({ onTogglePortal }) {
     return sorted;
   }, [filteredRecords, sortConfig]);
 
-  // Handle column header sort click
   const handleSort = (key) => {
     setSortConfig(prev => {
       if (prev.key === key) {
@@ -261,7 +244,6 @@ function OrlenApp({ onTogglePortal }) {
     });
   };
 
-  // Individual toggle
   const handleToggleRecord = (recordId) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -283,7 +265,7 @@ function OrlenApp({ onTogglePortal }) {
       sortedRecords.forEach(r => next.add(r._id));
       return next;
     });
-    showToast(`Zaznaczono wszystkie ${sortedRecords.length} widoczne rekordy`);
+    showToast(`Zaznaczono ${sortedRecords.length} widocznych rekordów`);
   };
 
   const handleDeselectVisible = () => {
@@ -304,7 +286,7 @@ function OrlenApp({ onTogglePortal }) {
 
   const handleClearAllSelected = () => {
     setSelectedIds(new Set());
-    showToast('Wyczyszczono wszystkie zaznaczenia');
+    showToast('Wyczyszczono zaznaczenia');
   };
 
   const handleDownloadSelected = () => {
@@ -318,7 +300,7 @@ function OrlenApp({ onTogglePortal }) {
     const filename = `orlen_${currentDataset.name.replace(/\.csv$/i, '')}_wybrane_${selectedRecordsList.length}_rekordow_${todayStr}.csv`;
 
     downloadRecordsAsCsv(selectedRecordsList, headers, filename, ';');
-    showToast(`Pobrano ${selectedRecordsList.length} wybranych rekordów jako ${filename}`);
+    showToast(`Pobrano ${selectedRecordsList.length} wybranych rekordów`);
   };
 
   const handleDownloadVisible = () => {
@@ -331,7 +313,7 @@ function OrlenApp({ onTogglePortal }) {
     const filename = `orlen_${currentDataset.name.replace(/\.csv$/i, '')}_widok_${sortedRecords.length}_rekordow_${todayStr}.csv`;
 
     downloadRecordsAsCsv(sortedRecords, headers, filename, ';');
-    showToast(`Pobrano ${sortedRecords.length} widocznych rekordów jako ${filename}`);
+    showToast(`Pobrano ${sortedRecords.length} widocznych rekordów`);
   };
 
   const handleResetFilters = () => {
@@ -339,9 +321,16 @@ function OrlenApp({ onTogglePortal }) {
     setActiveRule('ALL');
   };
 
+  const [activeTocSection, setActiveTocSection] = useState('sec-orlen-stats');
+
+  const orlenSections = [
+    { id: 'sec-orlen-stats', type: 'stats', label: '1. Wskaźniki statystyczne' },
+    { id: 'sec-orlen-filters', type: 'filters', label: '2. Filtry i wyszukiwanie' },
+    { id: 'sec-orlen-table', type: 'table', label: '3. Tabela notowań', badge: `${sortedRecords.length}` },
+  ];
+
   return (
     <div className="orlen-app-container">
-      {/* Top Navigation with Dropdown in Center + GUS BDL toggle button */}
       <Navbar
         currentDataset={currentDataset}
         onSelectDataset={handleSelectDataset}
@@ -349,10 +338,12 @@ function OrlenApp({ onTogglePortal }) {
         recordCount={allRecords.length}
         isLoading={isLoading}
         onTogglePortal={onTogglePortal}
+        viewMode={viewMode}
+        onToggleViewMode={setViewMode}
+        onOpenSlideMenu={() => setIsSlideMenuOpen(true)}
       />
 
       <main className="orlen-main-content">
-        {/* Error Notice */}
         {error && (
           <div className="orlen-alert orlen-alert-error">
             <span className="alert-icon">
@@ -364,75 +355,135 @@ function OrlenApp({ onTogglePortal }) {
           </div>
         )}
 
-        {/* Hero / Statistics Cards */}
-        <StatsCards
-          records={allRecords}
-          selectedIds={selectedIds}
-          visibleRecordsCount={sortedRecords.length}
-        />
+        {viewMode === 'SIMPLIFIED' ? (
+          <OrlenSimplifiedView
+            records={allRecords}
+            headers={headers}
+            currentDataset={currentDataset}
+            onSwitchToAdvanced={() => setViewMode('ADVANCED')}
+            onOpenSlideMenu={() => setIsSlideMenuOpen(true)}
+          />
+        ) : (
+          <>
+            <TableOfContents 
+              sections={orlenSections}
+              activeSection={activeTocSection}
+              onSelectSection={setActiveTocSection}
+              theme="orlen"
+            />
 
-        {/* Controls: Search, Rule Pills, Select All Visible & Download Buttons */}
-        <ControlsBar
-          searchQuery={searchQuery}
-          onSearchChange={(q) => {
-            setSearchQuery(q);
-            setCurrentPage(1);
-          }}
-          activeRule={activeRule}
-          onSelectRule={(ruleId) => {
-            setActiveRule(ruleId);
-            setCurrentPage(1);
-          }}
-          onSelectAllVisible={handleSelectAllVisible}
-          onDeselectVisible={handleDeselectVisible}
-          onClearAllSelected={handleClearAllSelected}
-          onDownloadSelected={handleDownloadSelected}
-          onDownloadVisible={handleDownloadVisible}
-          selectedCount={selectedIds.size}
-          visibleCount={sortedRecords.length}
-          totalCount={allRecords.length}
-          allVisibleSelected={allVisibleSelected}
-          someVisibleSelected={someVisibleSelected}
-        />
+            <section id="sec-orlen-stats" className="portal-section">
+              <StatsCards
+                records={allRecords}
+                selectedIds={selectedIds}
+                visibleRecordsCount={sortedRecords.length}
+              />
+            </section>
 
-        {/* Table of Records with Sorting, Checkboxes and Pagination */}
-        <DataTable
-          records={sortedRecords}
-          selectedIds={selectedIds}
-          onToggleRecord={handleToggleRecord}
-          onToggleAllVisible={handleToggleAllVisible}
-          sortConfig={sortConfig}
-          onSort={handleSort}
-          allVisibleSelected={allVisibleSelected}
-          someVisibleSelected={someVisibleSelected}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(newSize) => {
-            setPageSize(newSize);
-            setCurrentPage(1);
-          }}
-          onResetFilters={handleResetFilters}
-        />
+            <section id="sec-orlen-filters" className="portal-section">
+              <ControlsBar
+                searchQuery={searchQuery}
+                onSearchChange={(q) => {
+                  setSearchQuery(q);
+                  setCurrentPage(1);
+                }}
+                activeRule={activeRule}
+                onSelectRule={(ruleId) => {
+                  setActiveRule(ruleId);
+                  setCurrentPage(1);
+                }}
+                onSelectAllVisible={handleSelectAllVisible}
+                onDeselectVisible={handleDeselectVisible}
+                onClearAllSelected={handleClearAllSelected}
+                onDownloadSelected={handleDownloadSelected}
+                onDownloadVisible={handleDownloadVisible}
+                selectedCount={selectedIds.size}
+                visibleCount={sortedRecords.length}
+                totalCount={allRecords.length}
+                allVisibleSelected={allVisibleSelected}
+                someVisibleSelected={someVisibleSelected}
+              />
+            </section>
+
+            <section id="sec-orlen-table" className="portal-section">
+              <DataTable
+                records={sortedRecords}
+                selectedIds={selectedIds}
+                onToggleRecord={handleToggleRecord}
+                onToggleAllVisible={handleToggleAllVisible}
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                allVisibleSelected={allVisibleSelected}
+                someVisibleSelected={someVisibleSelected}
+                currentPage={currentPage}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(newSize) => {
+                  setPageSize(newSize);
+                  setCurrentPage(1);
+                }}
+                onResetFilters={handleResetFilters}
+              />
+            </section>
+          </>
+        )}
       </main>
 
-      {/* Polish Orlen Footer */}
-      <footer className="orlen-footer">
-        <div className="orlen-footer-content">
-          <div className="footer-left">
-            <div className="footer-logo-group">
-              <OrlenAppLogo height={22} alt="ORLEN App Logo" />
-              <OrlenMainLogo height={20} alt="ORLEN Main Logo" />
+      <footer className="unified-footer orlen-footer-unified">
+        <div className="unified-footer-content">
+          <div className="footer-brand-col">
+            <div className="footer-logo-box">
+              <OrlenAppLogo height={24} alt="ORLEN Logo" />
+              <OrlenMainLogo height={20} alt="PKN ORLEN" />
             </div>
-            <span className="footer-copyright">Portal Cen Hurtowych Paliw • Rok 2026</span>
+            <span className="footer-desc-text">
+              Portal Cen Hurtowych Paliw PKN ORLEN • Notowania spotowe
+            </span>
           </div>
-          <div className="footer-right">
-            <span>Standard kodowania: UTF-8 z BOM • Separator: Średnik (;)</span>
+
+          <div className="footer-meta-col">
+            <div className="meta-pill">
+              <span>Standard: UTF-8 z BOM (separator <b className="separator-bold">;</b>)</span>
+            </div>
           </div>
         </div>
       </footer>
 
-      {/* Floating Toast Feedback */}
+      {/* Hidden file input for slide menu upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            handleCustomFileUpload(file);
+            e.target.value = '';
+          }
+        }}
+        accept=".csv,text/csv"
+        style={{ display: 'none' }}
+      />
+
+      {/* Slide Menu Drawer */}
+      <SlideMenu
+        isOpen={isSlideMenuOpen}
+        onClose={() => setIsSlideMenuOpen(false)}
+        activePortal="ORLEN"
+        onTogglePortal={onTogglePortal}
+        viewMode={viewMode}
+        onToggleViewMode={setViewMode}
+        currentDataset={currentDataset}
+        onSelectDataset={handleSelectDataset}
+        onUploadCsvClick={() => {
+          setIsSlideMenuOpen(false);
+          fileInputRef.current?.click();
+        }}
+        activeRule={activeRule}
+        onSelectRule={setActiveRule}
+        onDownloadOrlenCsv={handleDownloadSelected}
+        orlenRecordsCount={allRecords.length}
+      />
+
       {toast && (
         <div className={`orlen-toast ${toast.type === 'error' ? 'toast-error' : 'toast-success'}`}>
           <span className="toast-icon">

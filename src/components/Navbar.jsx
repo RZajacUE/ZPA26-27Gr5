@@ -1,6 +1,8 @@
 import React, { useRef } from 'react';
-import { FaUpload, FaGasPump, FaChartPie } from 'react-icons/fa6';
+import { FaBars, FaChartPie, FaGasPump } from 'react-icons/fa6';
 import { OrlenAppLogo, OrlenMainLogo } from './OrlenLogos';
+import ModeToggle from './ModeToggle';
+import ViewModeToggle from './ViewModeToggle';
 
 export default function Navbar({ 
   currentDataset, 
@@ -9,6 +11,9 @@ export default function Navbar({
   recordCount,
   isLoading,
   onTogglePortal,
+  viewMode,
+  onToggleViewMode,
+  onOpenSlideMenu
 }) {
   const fileInputRef = useRef(null);
 
@@ -30,100 +35,71 @@ export default function Navbar({
   };
 
   return (
-    <header className="orlen-header">
-      <div className="orlen-header-container">
-        {/* Brand Left: App Logo (Eagle) + Main Logo (Wordmark) */}
-        <div className="orlen-brand">
-          <div className="orlen-app-logo-badge" title="Logo aplikacji ORLEN (Orzeł)">
-            <OrlenAppLogo height={34} alt="ORLEN App Logo" />
-          </div>
-          <div className="orlen-main-logo-wrapper" title="Główne logo ORLEN (Wordmark)">
-            <OrlenMainLogo height={32} alt="ORLEN Main Logo" />
-          </div>
-          <div className="orlen-brand-divider"></div>
-          <div className="orlen-brand-text">
-            <span className="orlen-brand-subtitle">Portal Hurtowy Paliw</span>
-          </div>
-        </div>
-
-        {/* Middle Top Menu: Dropdown to Choose CSV Data */}
-        <div className="orlen-menu-center">
-          <label htmlFor="csv-dataset-select" className="dataset-label">
-            <FaGasPump className="dataset-icon-prefix" />
-            <span className="label-text">Zbiór CSV:</span>
-          </label>
-          <div className="dataset-select-wrapper">
-            <select
-              id="csv-dataset-select"
-              value={currentDataset.id}
-              onChange={handleDropdownChange}
-              className="dataset-select"
-              aria-label="Wybierz zbiór danych CSV"
+    <header className="unified-header orlen-header-unified">
+      <div className="unified-header-container">
+        {/* Left Section: Menu trigger + Brand Logo in high-contrast box */}
+        <div className="header-left-col">
+          {onOpenSlideMenu && (
+            <button
+              type="button"
+              className="btn-open-slide-menu"
+              onClick={onOpenSlideMenu}
+              title="Otwórz menu boczne (opcje, filtry, słownik pojęć)"
+              aria-label="Otwórz menu boczne"
             >
-              <optgroup label="Notowania PKN ORLEN 2026">
-                <option value="Orlen_pb95_2026.csv">
-                  Orlen_pb95_2026.csv (Benzyna Eurosuper 95)
-                </option>
-                <option value="Orlen_on_2026.csv">
-                  Orlen_on_2026.csv (Olej Napędowy Ekodiesel)
-                </option>
-              </optgroup>
-              <optgroup label="Własne pliki">
-                <option value="CUSTOM_UPLOAD">
-                  Wgraj inny plik CSV z dysku...
-                </option>
-                {currentDataset.isCustom && (
-                  <option value={currentDataset.id}>
-                    {currentDataset.name} (Wgrany z pliku)
-                  </option>
-                )}
-              </optgroup>
-            </select>
-            <div className="dataset-select-badge">
-              {isLoading ? (
-                <span className="spinner-inline"></span>
-              ) : (
-                <span className="badge-count">{recordCount} wpisów</span>
-              )}
-            </div>
-          </div>
+              <FaBars size={14} />
+              <span>Menu</span>
+            </button>
+          )}
 
-          {/* Hidden File Input */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept=".csv,text/csv"
-            style={{ display: 'none' }}
-          />
+          <div className="brand-badge-container orlen-brand-badge" title="PKN ORLEN — Portal Cen Paliw">
+            <div className="brand-logos-wrapper">
+              <OrlenAppLogo height={28} alt="ORLEN Logo" />
+              <OrlenMainLogo height={24} alt="PKN ORLEN" />
+            </div>
+            <span className="brand-system-badge">PORTAL PALIW</span>
+          </div>
         </div>
 
-        {/* Right Info & Actions */}
-        <div className="orlen-header-right">
-          <div className="header-status-pill">
-            <span className="status-dot"></span>
-            <span className="status-text">Notowania 2026</span>
-          </div>
-          <button 
-            type="button" 
-            className="btn-upload-direct"
-            onClick={() => fileInputRef.current?.click()}
-            title="Wgraj własny plik CSV z dysku"
-          >
-            <FaUpload size={14} />
-            <span className="btn-text">Wgraj CSV</span>
-          </button>
+        {/* Center Section: Centered Portal Switcher [ PKN ORLEN | GUS BDL ] */}
+        <div className="header-center-col">
+          <ModeToggle activePortal="ORLEN" onTogglePortal={onTogglePortal} />
+        </div>
 
-          {/* GUS BDL Mode Toggle */}
-          <button
-            type="button"
-            className="btn-switch-to-gus"
-            onClick={() => onTogglePortal?.('GUS')}
-            title="Przełącz do modułu GUS BDL — Koszyk Konsumencki"
-          >
-            <FaChartPie size={14} />
-            <span className="btn-text">GUS BDL →</span>
-          </button>
+        {/* Right Section: View Mode Toggle + Portal Switcher Button */}
+        <div className="header-right-col">
+          {onToggleViewMode && (
+            <ViewModeToggle 
+              viewMode={viewMode} 
+              onToggleViewMode={onToggleViewMode} 
+              theme="orlen" 
+            />
+          )}
+
+          {/* Quick Dataset Selector Dropdown (compact) */}
+          <div className="header-dataset-pill" title="Aktualny zbiór notowań">
+            <FaGasPump size={12} className="dataset-icon" />
+            <select
+              value={currentDataset?.id}
+              onChange={handleDropdownChange}
+              className="header-dataset-select"
+              aria-label="Zbiór danych"
+            >
+              <option value="Orlen_pb95_2026.csv">Pb95 (Eurosuper)</option>
+              <option value="Orlen_on_2026.csv">ON (Ekodiesel)</option>
+              <option value="CUSTOM_UPLOAD">+ Wgraj z dysku...</option>
+              {currentDataset?.isCustom && (
+                <option value={currentDataset.id}>{currentDataset.name}</option>
+              )}
+            </select>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept=".csv,text/csv"
+              style={{ display: 'none' }}
+            />
+          </div>
         </div>
       </div>
     </header>
