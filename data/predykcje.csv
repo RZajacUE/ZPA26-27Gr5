@@ -1,0 +1,33 @@
+﻿rok;Produkt;typ;cena;baseline;regresja_liniowa
+2024;ONEkodiesel;paliwo;4,984500000000001;5,127;5,477647736690268
+2025;ONEkodiesel;paliwo;4,6635;4,984500000000001;5,329891008544005
+2024;Pb95;paliwo;4,901999999999999;5,121499999999999;5,508000656257636
+2025;Pb95;paliwo;4,507;4,901999999999999;5,275250850491902
+2024;Pb98;paliwo;5,421749999999999;5,4935;5,935226147741031
+2025;Pb98;paliwo;4,9495000000000005;5,421749999999999;5,864468328115165
+2024;chleb pszenno-żytni - za 0,5kg;żywność;5,13;4,82;5,507172002157416
+2025;chleb pszenno-żytni - za 0,5kg;żywność;5,38;5,13;5,85835835428409
+2024;cukier biały kryształ - za 1kg;żywność;4,61;6,13;7,299013593280124
+2025;cukier biały kryształ - za 1kg;żywność;3,28;4,61;5,6707328479281776
+2024;herbata czarna, liściasta (1) - za 100g;żywność;11,77;10,0;10,807212588675903
+2025;herbata czarna, liściasta (1) - za 100g;żywność;11,15;11,77;12,752041736304978
+2024;jaja kurze świeże - za 1szt.;żywność;0,94;0,99;1,0843407869923618
+2025;jaja kurze świeże - za 1szt.;żywność;1,13;0,94;1,0325346865112948
+2024;kiełbasa sucha - za 1kg;żywność;50,31;47,94;52,766686421764206
+2025;kiełbasa sucha - za 1kg;żywność;52,02;50,31;55,43072989087406
+2024;makaron jajeczny - za 400g;żywność;6,6;6,42;7,123275977893246
+2025;makaron jajeczny - za 400g;żywność;6,49;6,6;7,333725851451191
+2024;masło świeże o zawartości tłuszczu ok. 82,5% - za 200g;żywność;7,78;6,9;7,23230662285515
+2025;masło świeże o zawartości tłuszczu ok. 82,5% - za 200g;żywność;8,99;7,78;8,20006047581698
+2024;mięso wieprzowe bez kości (schab) - za 1 kg;żywność;26,02;25,73;28,077838118688685
+2025;mięso wieprzowe bez kości (schab) - za 1 kg;żywność;25,04;26,02;28,45750170336836
+2024;mleko krowie spożywcze o zawartości tłuszczu 3-3,5%, sterylizowane - za 1l;żywność;4,33;4,37;4,897021400861327
+2025;mleko krowie spożywcze o zawartości tłuszczu 3-3,5%, sterylizowane - za 1l;żywność;4,4;4,33;4,86435687133208
+2024;mąka pszenna - za 1kg;żywność;3,87;4,08;4,496006616536735
+2025;mąka pszenna - za 1kg;żywność;3,76;3,87;4,275417190276178
+2024;polędwica drobiowa - za 1kg;żywność;31,33;29,73;32,85134575936155
+2025;polędwica drobiowa - za 1kg;żywność;35,49;31,33;34,655535170412165
+2024;ryż - za 1kg;żywność;6,23;6,48;7,290852499376357
+2025;ryż - za 1kg;żywność;6,32;6,23;7,034215137711743
+2024;sok jabłkowy - za 1l;żywność;4,83;4,55;4,761818374163431
+2025;sok jabłkowy - za 1l;żywność;5,42;4,83;5,070433990446008
