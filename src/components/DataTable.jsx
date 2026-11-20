@@ -53,13 +53,14 @@ export default function DataTable({
     <div className="table-card">
       <div className="table-card-header">
         <div className="table-header-info">
-          <h2 className="table-title">Notowania cen hurtowych PKN ORLEN</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+            <span className="table-mode-badge orlen">TRYB ZAAWANSOWANY • PKN ORLEN</span>
+            <h2 className="table-title">Notowania cen hurtowych PKN ORLEN</h2>
+          </div>
           <span className="table-records-badge">
             Wyświetlanie {totalItems > 0 ? `${startIndex + 1}-${endIndex}` : '0'} z {totalItems} rekordów
           </span>
         </div>
-
-        {/* Rows per page selector */}
         <div className="table-pagination-size">
           <label htmlFor="page-size-select" className="page-size-label">Wierszy na stronę:</label>
           <select
@@ -80,7 +81,6 @@ export default function DataTable({
         <table className="orlen-table">
           <thead>
             <tr>
-              {/* Master Checkbox */}
               <th className="col-checkbox th-checkbox">
                 <div className="checkbox-cell-wrapper">
                   <input
@@ -94,8 +94,6 @@ export default function DataTable({
                   />
                 </div>
               </th>
-
-              {/* Sortable Column: Date */}
               <th 
                 className={`col-sortable col-date ${sortConfig.key === 'date' ? 'sorted' : ''}`}
                 onClick={() => onSort('date')}
@@ -106,8 +104,6 @@ export default function DataTable({
                   {getSortIcon('date')}
                 </div>
               </th>
-
-              {/* Sortable Column: Product */}
               <th 
                 className={`col-sortable col-product ${sortConfig.key === 'product' ? 'sorted' : ''}`}
                 onClick={() => onSort('product')}
@@ -118,8 +114,6 @@ export default function DataTable({
                   {getSortIcon('product')}
                 </div>
               </th>
-
-              {/* Sortable Column: Symbol */}
               <th 
                 className={`col-sortable col-symbol ${sortConfig.key === 'symbol' ? 'sorted' : ''}`}
                 onClick={() => onSort('symbol')}
@@ -130,8 +124,6 @@ export default function DataTable({
                   {getSortIcon('symbol')}
                 </div>
               </th>
-
-              {/* Sortable Column: Price */}
               <th 
                 className={`col-sortable col-price ${sortConfig.key === 'price' ? 'sorted' : ''}`}
                 onClick={() => onSort('price')}
@@ -142,8 +134,6 @@ export default function DataTable({
                   {getSortIcon('price')}
                 </div>
               </th>
-
-              {/* Computed: Price per Liter */}
               <th 
                 className="col-sortable col-liter"
                 onClick={() => onSort('price')}
@@ -154,11 +144,7 @@ export default function DataTable({
                   {getSortIcon('price')}
                 </div>
               </th>
-
-              {/* Column: Unit */}
               <th className="col-unit">Jednostka</th>
-
-              {/* Sortable Column: Publish Date */}
               <th 
                 className={`col-sortable col-publish ${sortConfig.key === 'publishFrom' ? 'sorted' : ''}`}
                 onClick={() => onSort('publishFrom')}
@@ -169,8 +155,6 @@ export default function DataTable({
                   {getSortIcon('publishFrom')}
                 </div>
               </th>
-
-              {/* Column: Source Link */}
               <th className="col-source">Źródło</th>
             </tr>
           </thead>
@@ -187,7 +171,6 @@ export default function DataTable({
                     className={`orlen-table-row ${isSelected ? 'row-selected' : ''}`}
                     onClick={() => onToggleRecord(row._id)}
                   >
-                    {/* Checkbox */}
                     <td className="col-checkbox" onClick={(e) => e.stopPropagation()}>
                       <div className="checkbox-cell-wrapper">
                         <input
@@ -200,48 +183,32 @@ export default function DataTable({
                         />
                       </div>
                     </td>
-
-                    {/* Date */}
                     <td className="col-date font-mono">
                       <span className="cell-date-badge">{parsed.date}</span>
                     </td>
-
-                    {/* Product */}
                     <td className="col-product">
                       <span className="cell-product-name">{parsed.product}</span>
                     </td>
-
-                    {/* Symbol */}
                     <td className="col-symbol">
                       <span className={`symbol-badge ${parsed.symbol === 'Pb95' ? 'badge-pb95' : 'badge-on'}`}>
                         {parsed.symbol}
                       </span>
                     </td>
-
-                    {/* Price in PLN/m3 */}
                     <td className="col-price font-mono price-cell">
                       <span className="price-primary">{parsed.priceFormatted}</span>
                       <span className="price-unit-sub"> zł</span>
                     </td>
-
-                    {/* Price per Liter */}
                     <td className="col-liter font-mono">
                       <span className="liter-pill">
                         {parsed.pricePerLiter} zł/l
                       </span>
                     </td>
-
-                    {/* Unit */}
                     <td className="col-unit font-mono text-muted">
                       {parsed.unit}
                     </td>
-
-                    {/* Publish From */}
                     <td className="col-publish font-mono text-muted">
                       {parsed.publishFrom}
                     </td>
-
-                    {/* Source URL */}
                     <td className="col-source" onClick={(e) => e.stopPropagation()}>
                       {parsed.sourceUrl ? (
                         <a
@@ -287,8 +254,6 @@ export default function DataTable({
           </tbody>
         </table>
       </div>
-
-      {/* Pagination Bar */}
       {!isAllPages && totalPages > 1 && (
         <div className="table-card-footer">
           <div className="pagination-info">
@@ -313,8 +278,6 @@ export default function DataTable({
             >
               ‹ Poprzednia
             </button>
-
-            {/* Page number indicators */}
             <div className="pagination-numbers">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;

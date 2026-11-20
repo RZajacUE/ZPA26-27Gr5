@@ -2,9 +2,6 @@ import React from 'react';
 import eagleSvg from '../assets/Orlen_eagle_logo.svg';
 import wordmarkSvg from '../assets/Orlen_wordmark_logo.svg';
 
-/**
- * App Logo: Official Orlen Eagle Mark (from Orlen_eagle_logo.svg)
- */
 export function OrlenAppLogo({ height = 36, className = '', alt = 'ORLEN App Logo' }) {
   return (
     <img 
@@ -17,9 +14,6 @@ export function OrlenAppLogo({ height = 36, className = '', alt = 'ORLEN App Log
   );
 }
 
-/**
- * Main Logo: Official Orlen Wordmark Banner (from Orlen_wordmark_logo.svg / watermark)
- */
 export function OrlenMainLogo({ height = 34, className = '', alt = 'PKN ORLEN Main Logo' }) {
   return (
     <img 

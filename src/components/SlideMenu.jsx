@@ -17,7 +17,11 @@ import {
   FaEyeSlash,
   FaCheck,
   FaTriangleExclamation,
-  FaRotateLeft
+  FaRotateLeft,
+  FaChartLine,
+  FaSun,
+  FaMoon,
+  FaClockRotateLeft
 } from 'react-icons/fa6';
 import { OrlenAppLogo } from './OrlenLogos';
 import { GusLogo, GusEmblem } from './GusLogos';
@@ -35,6 +39,12 @@ export default function SlideMenu({
   onTogglePortal,
   viewMode,
   onToggleViewMode,
+  // Dark mode props
+  isDarkMode = false,
+  onToggleDarkMode,
+  // Recent files history
+  recentFiles = [],
+  onSelectRecentFile,
   // Orlen props
   currentDataset,
   onSelectDataset,
@@ -44,6 +54,8 @@ export default function SlideMenu({
   onDownloadOrlenCsv,
   orlenRecordsCount,
   // Gus props
+  currentGusDataset,
+  onSelectGusDataset,
   startDate,
   endDate,
   isEndingPresent,
@@ -166,7 +178,6 @@ export default function SlideMenu({
         onClick={(e) => e.stopPropagation()}
         aria-label="Panel boczny opcji i słownika"
       >
-        {/* Header with Redesigned Portal Toggle */}
         <div className="slide-menu-header">
           <ModeToggle
             activePortal={activePortal}
@@ -183,8 +194,6 @@ export default function SlideMenu({
             <FaXmark size={18} />
           </button>
         </div>
-
-        {/* Top Tab Navigator: Settings vs Terms Glossary */}
         <div className="slide-menu-tabs">
           <button
             type="button"
@@ -203,8 +212,6 @@ export default function SlideMenu({
             <span>Słownik pojęć</span>
           </button>
         </div>
-
-        {/* Scrollable Content */}
         <div className="slide-menu-content">
           {activeTab === 'GLOSSARY' ? (
             /* GLOSSARY / TERMS EXPLANATION VIEW */
@@ -234,36 +241,116 @@ export default function SlideMenu({
           ) : (
             /* SETTINGS / FILTERS VIEW */
             <>
-              {/* Section: View Mode Switcher */}
               <div className="drawer-section">
                 <label className="section-label">Tryb prezentacji:</label>
-                <div className="drawer-btn-grid">
+                <div className="drawer-btn-grid triple">
                   <button
                     type="button"
                     className={`drawer-choice-btn ${viewMode === 'SIMPLIFIED' ? 'active' : ''}`}
                     onClick={() => onToggleViewMode('SIMPLIFIED')}
                   >
-                    <FaTableColumns size={13} />
-                    <span>Uproszczony (Budżet)</span>
+                    <FaTableColumns size={12} />
+                    <span>Uproszczony</span>
                   </button>
                   <button
                     type="button"
                     className={`drawer-choice-btn ${viewMode === 'ADVANCED' ? 'active' : ''}`}
                     onClick={() => onToggleViewMode('ADVANCED')}
                   >
-                    <FaTableList size={13} />
-                    <span>Zaawansowany (Tabela)</span>
+                    <FaTableList size={12} />
+                    <span>Zaawansowany</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-btn ${viewMode === 'ANALYSIS' ? 'active' : ''}`}
+                    onClick={() => onToggleViewMode('ANALYSIS')}
+                  >
+                    <FaChartLine size={12} />
+                    <span>Analiza</span>
                   </button>
                 </div>
               </div>
+              <div className="drawer-section">
+                <label className="section-label">Motyw kolorystyczny:</label>
+                <div className="drawer-btn-grid double">
+                  <button
+                    type="button"
+                    className={`drawer-choice-btn ${!isDarkMode ? 'active' : ''}`}
+                    onClick={() => onToggleDarkMode?.(false)}
+                    title="Włącz tryb jasny"
+                  >
+                    <FaSun size={12} />
+                    <span>Tryb jasny</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`drawer-choice-btn ${isDarkMode ? 'active' : ''}`}
+                    onClick={() => onToggleDarkMode?.(true)}
+                    title="Włącz tryb ciemny"
+                  >
+                    <FaMoon size={12} />
+                    <span>Tryb ciemny</span>
+                  </button>
+                </div>
+              </div>
+              {(() => {
+                const portalRecentFiles = (recentFiles || []).filter(rf => {
+                  if (activePortal === 'ORLEN') {
+                    return rf.portal === 'ORLEN' || rf.id.includes('orlen') || rf.id.includes('paliwa');
+                  } else {
+                    return rf.portal === 'GUS' || rf.id.includes('gus') || rf.id.includes('zywnosc');
+                  }
+                });
 
-              {/* Section 2: Portal Specific Options */}
+                if (portalRecentFiles.length === 0) return null;
+
+                const currentId = activePortal === 'ORLEN' ? currentDataset?.id : currentGusDataset?.id;
+                const folderName = activePortal === 'ORLEN' ? 'orlen_paliwa' : 'gus_zywnosc';
+
+                return (
+                  <div className="drawer-section">
+                    <label className="section-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <FaClockRotateLeft size={12} />
+                      <span>Historia plików CSV (/data/csv/{folderName}/):</span>
+                    </label>
+                    <div className="recent-files-history-list">
+                      {portalRecentFiles.map((rf, idx) => {
+                        const isCurrent = currentId === rf.id;
+                        const sub = rf.subfolder || folderName;
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            className={`recent-file-item ${isCurrent ? 'active' : ''}`}
+                            onClick={() => onSelectRecentFile?.(rf)}
+                            title={`Kliknij aby załadować: /data/csv/${sub}/${rf.id}`}
+                          >
+                            <div className="recent-file-main">
+                              <span className={`recent-portal-tag ${activePortal === 'GUS' ? 'gus' : 'orlen'}`}>
+                                {activePortal}
+                              </span>
+                              <div className="recent-file-info">
+                                <span className="recent-file-name" title={rf.name || rf.id}>
+                                  {rf.name || rf.id}
+                                </span>
+                                <span className="recent-file-path">
+                                  /data/csv/{sub}/{rf.id}
+                                </span>
+                              </div>
+                            </div>
+                            {isCurrent && <span className="recent-active-pip">Aktywny</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               {activePortal === 'ORLEN' ? (
                 <>
-                  {/* ORLEN Dataset Selector */}
                   <div className="drawer-section">
                     <label className="section-label" htmlFor="drawer-dataset-select">
-                      Zbiór danych notowań paliw:
+                      Zbiór danych notowań (katalog csv/orlen_paliwa/):
                     </label>
                     <select
                       id="drawer-dataset-select"
@@ -271,10 +358,16 @@ export default function SlideMenu({
                       onChange={(e) => onSelectDataset?.(e.target.value)}
                       className="drawer-select"
                     >
-                      <option value="Orlen_pb95_2026.csv">Orlen_pb95_2026.csv (Eurosuper 95)</option>
-                      <option value="Orlen_on_2026.csv">Orlen_on_2026.csv (Ekodiesel ON)</option>
+                      <optgroup label="Aktywne zbiory w folderze csv/orlen_paliwa/">
+                        <option value="orlen_paliwa_pb95_2026.csv">orlen_paliwa_pb95_2026.csv (Eurosuper 95 - 2026)</option>
+                        <option value="orlen_paliwa_on_2026.csv">orlen_paliwa_on_2026.csv (Ekodiesel ON - 2026)</option>
+                        <option value="orlen_paliwa_analiza_2019_2026.csv">orlen_paliwa_analiza_2019_2026.csv (Pełna historia 2019–2026 & Model)</option>
+                        <option value="orlen_paliwa_wydarzenia.csv">orlen_paliwa_wydarzenia.csv (Zdarzenia rynkowe i tarcza)</option>
+                      </optgroup>
                       {currentDataset?.isCustom && (
-                        <option value={currentDataset.id}>{currentDataset.name} (Własny plik)</option>
+                        <optgroup label="Pliki użytkownika">
+                          <option value={currentDataset.id}>{currentDataset.name} (Własny plik)</option>
+                        </optgroup>
                       )}
                     </select>
 
@@ -287,8 +380,6 @@ export default function SlideMenu({
                       <span>Wgraj inny plik CSV z dysku</span>
                     </button>
                   </div>
-
-                  {/* ORLEN Filter Rules */}
                   {onSelectRule && (
                     <div className="drawer-section">
                       <label className="section-label">Filtry reguł cenowych:</label>
@@ -306,8 +397,6 @@ export default function SlideMenu({
                       </div>
                     </div>
                   )}
-
-                  {/* ORLEN Export Action */}
                   <div className="drawer-section">
                     <label className="section-label">Eksport danych:</label>
                     <button
@@ -323,7 +412,22 @@ export default function SlideMenu({
                 </>
               ) : (
                 <>
-                  {/* GUS Date Range */}
+                  <div className="drawer-section">
+                    <label className="section-label" htmlFor="drawer-gus-dataset-select">
+                      Zbiór cen i koszyka (katalog csv/gus_zywnosc/):
+                    </label>
+                    <select
+                      id="drawer-gus-dataset-select"
+                      value={currentGusDataset?.id}
+                      onChange={(e) => onSelectGusDataset?.(e.target.value)}
+                      className="drawer-select"
+                    >
+                      <optgroup label="Aktywne zbiory w folderze csv/gus_zywnosc/">
+                        <option value="gus_zywnosc_analiza_koszyka_2019_2025.csv">gus_zywnosc_analiza_koszyka_2019_2025.csv (Koszyk 13 dóbr)</option>
+                        <option value="gus_zywnosc_wydarzenia.csv">gus_zywnosc_wydarzenia.csv (Tarcza 0% VAT i wydarzenia)</option>
+                      </optgroup>
+                    </select>
+                  </div>
                   <div className="drawer-section">
                     <label className="section-label">Zakres dat analizy:</label>
                     <div className="drawer-dates-row">
@@ -361,8 +465,6 @@ export default function SlideMenu({
                       <span>Ustaw do dnia dzisiejszego</span>
                     </button>
                   </div>
-
-                  {/* GUS Frequency Chunking */}
                   <div className="drawer-section">
                     <label className="section-label">Częstotliwość danych (Chunking):</label>
                     <div className="drawer-btn-grid triple">
@@ -378,8 +480,6 @@ export default function SlideMenu({
                       ))}
                     </div>
                   </div>
-
-                  {/* GUS Basket Category Filter */}
                   <div className="drawer-section">
                     <label className="section-label">Kategorie w koszyku:</label>
                     <div className="drawer-pills-list">
@@ -395,12 +495,8 @@ export default function SlideMenu({
                       ))}
                     </div>
                   </div>
-
-                  {/* GUS API Key Management with Regex Validation */}
                   <div className="drawer-section">
                     <label className="section-label">Klucz API BDL (GUS):</label>
-                    
-                    {/* Masked Active Key */}
                     <div className="drawer-api-info-box">
                       <div className="api-key-row">
                         <FaShieldHalved size={14} className="key-icon" />
@@ -420,8 +516,6 @@ export default function SlideMenu({
                           title={apiStatus === 'CONNECTED' ? 'Połączono z BDL API' : 'Dane zsynchronizowane'}
                         ></span>
                       </div>
-
-                      {/* Custom Key Input verified with Regex */}
                       <div className="custom-key-entry">
                         <label htmlFor="custom-key-field" className="custom-key-label">
                           Wprowadź własny klucz API:
@@ -450,8 +544,6 @@ export default function SlideMenu({
                             <span>Zapisz</span>
                           </button>
                         </div>
-
-                        {/* Regex validation feedback */}
                         {customKeyInput && (
                           <div className={`key-regex-feedback ${isCustomKeyValid ? 'valid' : 'invalid'}`}>
                             {isCustomKeyValid ? (
@@ -497,8 +589,6 @@ export default function SlideMenu({
                       </div>
                     </div>
                   </div>
-
-                  {/* GUS Export CSV */}
                   <div className="drawer-section">
                     <label className="section-label">Eksport raportu:</label>
                     <button
@@ -516,8 +606,6 @@ export default function SlideMenu({
             </>
           )}
         </div>
-
-        {/* Footer */}
         <div className="slide-menu-footer">
           <button 
             type="button" 

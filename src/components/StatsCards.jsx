@@ -34,7 +34,6 @@ export default function StatsCards({ records, selectedIds, visibleRecordsCount }
 
   return (
     <div className="stats-grid">
-      {/* Latest Price Card */}
       <div className="stat-card stat-card-featured">
         <div className="stat-card-header">
           <span className="stat-badge-red">Ostatnie notowanie</span>
@@ -55,8 +54,6 @@ export default function StatsCards({ records, selectedIds, visibleRecordsCount }
           </div>
         </div>
       </div>
-
-      {/* Average Price */}
       <div className="stat-card">
         <div className="stat-card-header">
           <span className="stat-title">Średnia cena w okresie</span>
@@ -70,8 +67,6 @@ export default function StatsCards({ records, selectedIds, visibleRecordsCount }
           <span className="stat-footnote">z {validPrices.length} notowań hurtowych</span>
         </div>
       </div>
-
-      {/* Max Price */}
       <div className="stat-card">
         <div className="stat-card-header">
           <span className="stat-title">Najwyższa cena</span>
@@ -85,8 +80,6 @@ export default function StatsCards({ records, selectedIds, visibleRecordsCount }
           <span className="stat-footnote">Dnia {maxRecord.date}</span>
         </div>
       </div>
-
-      {/* Min Price */}
       <div className="stat-card">
         <div className="stat-card-header">
           <span className="stat-title">Najniższa cena</span>
@@ -100,8 +93,6 @@ export default function StatsCards({ records, selectedIds, visibleRecordsCount }
           <span className="stat-footnote">Dnia {minRecord.date}</span>
         </div>
       </div>
-
-      {/* Selection Card */}
       <div className={`stat-card stat-card-selection ${selectedCount > 0 ? 'has-selection' : ''}`}>
         <div className="stat-card-header">
           <span className="stat-title">Wybrane do eksportu</span>

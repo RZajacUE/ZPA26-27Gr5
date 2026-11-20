@@ -108,7 +108,6 @@ export default function OrlenSimplifiedView({
 
   return (
     <div className="simple-view-container">
-      {/* Top Banner introducing simplified mode */}
       <div className="simple-view-header">
         <div>
           <h2 className="simple-view-title">Szybki przegląd cen paliw i budżetu kierowcy</h2>
@@ -136,10 +135,7 @@ export default function OrlenSimplifiedView({
           </button>
         </div>
       </div>
-
-      {/* Hero Cards: Budget impact + Price */}
       <div className="simple-cards-grid">
-        {/* Card 1: Fuel Price per liter */}
         <div className="simple-card hero-fuel-card">
           <div className="simple-card-badge">Cena detaliczna szacunkowa</div>
           <div className="simple-card-value">
@@ -154,8 +150,6 @@ export default function OrlenSimplifiedView({
             <span>{stats.dailyDiff >= 0 ? '+' : ''}{stats.dailyDiff.toFixed(2)} zł vs wczoraj</span>
           </div>
         </div>
-
-        {/* Card 2: Consumer Budget Consumption */}
         <div className="simple-card hero-budget-card">
           <div className="simple-card-badge">Wpływ na budżet domowy</div>
           <div className="simple-card-value">
@@ -169,8 +163,6 @@ export default function OrlenSimplifiedView({
             <div className="budget-bar-fill" style={{ width: `${Math.min(100, stats.budgetShare * 3)}%` }}></div>
           </div>
         </div>
-
-        {/* Card 3: Full Tank Cost & Hours of Work */}
         <div className="simple-card">
           <div className="simple-card-badge">Zatankowanie baku (50 litrów)</div>
           <div className="simple-card-value">
@@ -185,8 +177,6 @@ export default function OrlenSimplifiedView({
             Za całą pensję kupisz: <strong>{stats.litersPerSalary} litrów</strong>
           </div>
         </div>
-
-        {/* Card 4: Month-over-Month Comparison */}
         <div className="simple-card">
           <div className="simple-card-badge">Zmiana w ciągu 30 dni</div>
           <div className="simple-card-value">
@@ -202,8 +192,6 @@ export default function OrlenSimplifiedView({
           </div>
         </div>
       </div>
-
-      {/* Interactive Quick Tank Calculator */}
       <div className="simple-calculator-card">
         <div className="calc-header">
           <div className="calc-icon-title">
@@ -261,12 +249,13 @@ export default function OrlenSimplifiedView({
           </div>
         </div>
       </div>
-
-      {/* Recent 7 Days Table + Fast CSV Download */}
       <div className="simple-recent-card">
         <div className="recent-header">
           <div>
-            <h3>Ostatnie notowania hurtowe ({stats.latest.product})</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+              <span className="table-mode-badge orlen">TRYB UPROSZCZONY • OSTATNIE 7 DNI</span>
+              <h3>Ostatnie notowania hurtowe ({stats.latest.product})</h3>
+            </div>
             <p>Zestawienie ostatnich dni z wyliczonym kosztem litra paliwa.</p>
           </div>
           <div className="recent-actions">

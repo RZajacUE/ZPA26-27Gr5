@@ -98,8 +98,6 @@ export default function GusChart({ chunks = [] }) {
             </p>
           </div>
         </div>
-
-        {/* Legend */}
         <div className="gus-chart-legend">
           <div className="legend-item">
             <span className="legend-line basket-line"></span>
@@ -118,36 +116,16 @@ export default function GusChart({ chunks = [] }) {
           className="gus-chart-svg"
           preserveAspectRatio="none"
         >
-          <defs>
-            <linearGradient id="gusBasketGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#007B3B" stopOpacity="0.28" />
-              <stop offset="100%" stopColor="#007B3B" stopOpacity="0.0" />
-            </linearGradient>
-            <linearGradient id="gusMedianGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#D97706" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#D97706" stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
-
-          {/* Grid lines */}
           <line x1="50" y1="30" x2="950" y2="30" stroke="#E5E7EB" strokeDasharray="4 4" />
           <line x1="50" y1="110" x2="950" y2="110" stroke="#E5E7EB" strokeDasharray="4 4" />
           <line x1="50" y1="190" x2="950" y2="190" stroke="#E5E7EB" strokeDasharray="4 4" />
           <line x1="50" y1="270" x2="950" y2="270" stroke="#CBD5E1" />
-
-          {/* Y Axis Labels (Left: Basket PLN) */}
           <text x="45" y="35" textAnchor="end" fill="#007B3B" fontSize="11" fontWeight="600">{maxBasket} zł</text>
           <text x="45" y="150" textAnchor="end" fill="#6B7280" fontSize="10">{Math.round((maxBasket + minBasket) / 2)} zł</text>
           <text x="45" y="270" textAnchor="end" fill="#6B7280" fontSize="10">{minBasket} zł</text>
-
-          {/* Y Axis Labels (Right: Median PLN) */}
           <text x="955" y="35" textAnchor="start" fill="#D97706" fontSize="11" fontWeight="600">{maxMedian} zł (med)</text>
           <text x="955" y="270" textAnchor="start" fill="#D97706" fontSize="10">{minMedian} zł</text>
-
-          {/* Area under basket curve */}
-          <path d={basketAreaStr} fill="url(#gusBasketGrad)" />
-
-          {/* Basket Total Line */}
+          <path d={basketAreaStr} fill="rgba(0, 123, 59, 0.12)" />
           <path
             d={basketPathStr}
             fill="none"
@@ -156,8 +134,6 @@ export default function GusChart({ chunks = [] }) {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-
-          {/* Median Line (dashed amber) */}
           <path
             d={medianPathStr}
             fill="none"
@@ -167,8 +143,6 @@ export default function GusChart({ chunks = [] }) {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-
-          {/* Interactive Hover Anchor Circles */}
           {pointsCoords.map((pt, idx) => (
             <g
               key={pt.raw._id || idx}
@@ -176,10 +150,7 @@ export default function GusChart({ chunks = [] }) {
               onMouseEnter={() => setHoveredPoint(pt)}
               onMouseLeave={() => setHoveredPoint(null)}
             >
-              {/* Invisible large target for easy hover */}
               <circle cx={pt.x} cy={pt.yBasket} r="10" fill="transparent" />
-              
-              {/* Visible points if hovered */}
               {hoveredPoint?.raw._id === pt.raw._id && (
                 <>
                   <line x1={pt.x} y1="30" x2={pt.x} y2="270" stroke="#9CA3AF" strokeDasharray="3 3" />
@@ -190,8 +161,6 @@ export default function GusChart({ chunks = [] }) {
             </g>
           ))}
         </svg>
-
-        {/* Hover Tooltip Overlay */}
         {hoveredPoint && (
           <div 
             className="gus-chart-tooltip"

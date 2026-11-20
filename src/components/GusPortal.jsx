@@ -12,8 +12,8 @@ import GusControlsBar from './GusControlsBar';
 import GusChart from './GusChart';
 import GusDataTable from './GusDataTable';
 import GusFooter from './GusFooter';
-import GusApiKeyModal from './GusApiKeyModal';
 import GusSimplifiedView from './GusSimplifiedView';
+import GusAnalysisView from './GusAnalysisView';
 import SlideMenu from './SlideMenu';
 import TableOfContents from './TableOfContents';
 import { FaCircleCheck, FaCircleXmark } from 'react-icons/fa6';
@@ -22,9 +22,47 @@ export default function GusPortal({
   activePortal, 
   onTogglePortal, 
   isSlideMenuOpen: propSlideMenuOpen, 
-  setIsSlideMenuOpen: propSetSlideMenuOpen 
+  setIsSlideMenuOpen: propSetSlideMenuOpen,
+  isDarkMode,
+  onToggleDarkMode,
+  recentFiles = [],
+  onAddRecentFile,
+  onSelectRecentFile
 }) {
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  const [currentGusDataset, setCurrentGusDataset] = useState({
+    id: 'gus_zywnosc_analiza_koszyka_2019_2025.csv',
+    name: 'gus_zywnosc_analiza_koszyka_2019_2025.csv (Koszyk 13 dóbr konsumpcyjnych 2019–2025)',
+    subfolder: 'gus_zywnosc',
+    portal: 'GUS',
+    isCustom: false,
+  });
+
+  const [dataSourceMode, setDataSourceMode] = useState('API'); // 'API' | 'CSV'
+
+  const handleToggleDataSourceMode = (mode) => {
+    setDataSourceMode(mode);
+    if (mode === 'CSV') {
+      showToast('Aktywowano tryb statyczny CSV: dane pobierane z katalogu /data/csv/gus_zywnosc/');
+    } else {
+      showToast('Aktywowano tryb API BDL: pobieranie na żywo z Banku Danych Lokalnych');
+    }
+  };
+
+  const handleSelectGusDataset = (datasetId) => {
+    const item = {
+      id: datasetId,
+      name: datasetId,
+      subfolder: 'gus_zywnosc',
+      portal: 'GUS',
+      isCustom: false,
+    };
+    setCurrentGusDataset(item);
+    setDataSourceMode('CSV');
+    if (onAddRecentFile) onAddRecentFile(item);
+    showToast(`Aktywowano zbiór CSV GUS: ${datasetId}`);
+  };
 
   const [viewMode, setViewMode] = useState('SIMPLIFIED');
   const [internalSlideMenuOpen, setInternalSlideMenuOpen] = useState(false);
@@ -39,7 +77,6 @@ export default function GusPortal({
 
   const [apiKey, setApiKey] = useState(DEFAULT_GUS_API_KEY);
   const [apiStatus, setApiStatus] = useState('CONNECTED');
-  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const [selectedChunkIds, setSelectedChunkIds] = useState(new Set());
@@ -170,10 +207,11 @@ export default function GusPortal({
         onTogglePortal={onTogglePortal}
         apiKey={apiKey}
         apiStatus={apiStatus}
-        onOpenKeyModal={() => setIsKeyModalOpen(true)}
         viewMode={viewMode}
         onToggleViewMode={setViewMode}
         onOpenSlideMenu={() => setIsSlideMenuOpen(true)}
+        dataSourceMode={dataSourceMode}
+        onToggleDataSourceMode={handleToggleDataSourceMode}
       />
 
       <main className="gus-main-content">
@@ -183,6 +221,14 @@ export default function GusPortal({
             summary={summary}
             activeProducts={activeProducts}
             onSwitchToAdvanced={() => setViewMode('ADVANCED')}
+            onOpenSlideMenu={() => setIsSlideMenuOpen(true)}
+          />
+        ) : viewMode === 'ANALYSIS' ? (
+          <GusAnalysisView
+            chunks={chunks}
+            summary={summary}
+            currentDataset={currentGusDataset}
+            dataSourceMode={dataSourceMode}
             onOpenSlideMenu={() => setIsSlideMenuOpen(true)}
           />
         ) : (
@@ -245,8 +291,6 @@ export default function GusPortal({
       </main>
 
       <GusFooter />
-
-      {/* Slide Menu Drawer */}
       <SlideMenu
         isOpen={isSlideMenuOpen}
         onClose={() => setIsSlideMenuOpen(false)}
@@ -254,6 +298,18 @@ export default function GusPortal({
         onTogglePortal={onTogglePortal}
         viewMode={viewMode}
         onToggleViewMode={setViewMode}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={onToggleDarkMode}
+        recentFiles={recentFiles}
+        onSelectRecentFile={(fileItem) => {
+          if (fileItem.portal === 'ORLEN' || fileItem.id.includes('orlen') || fileItem.id.includes('paliwa')) {
+            onTogglePortal('ORLEN');
+          } else {
+            handleSelectGusDataset(fileItem.id);
+          }
+        }}
+        currentGusDataset={currentGusDataset}
+        onSelectGusDataset={handleSelectGusDataset}
         startDate={startDate}
         endDate={endDate}
         isEndingPresent={isEndingPresent}
@@ -273,17 +329,6 @@ export default function GusPortal({
         }}
         apiStatus={apiStatus}
         gusChunksCount={chunks.length}
-      />
-
-      <GusApiKeyModal
-        isOpen={isKeyModalOpen}
-        onClose={() => setIsKeyModalOpen(false)}
-        currentKey={apiKey}
-        onSaveKey={(newKey) => {
-          setApiKey(newKey);
-          showToast('Zaktualizowano klucz API BDL');
-        }}
-        setApiStatus={setApiStatus}
       />
 
       {toast && (

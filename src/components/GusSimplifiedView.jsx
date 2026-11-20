@@ -63,7 +63,6 @@ export default function GusSimplifiedView({
 
   return (
     <div className="simple-view-container gus-simple-theme">
-      {/* Header Banner */}
       <div className="simple-view-header">
         <div>
           <h2 className="simple-view-title">Szybki przegląd: Koszyk konsumencki i budżet domowy</h2>
@@ -91,10 +90,7 @@ export default function GusSimplifiedView({
           </button>
         </div>
       </div>
-
-      {/* 4 Cards: Basket Price, Budget Share, Earnings vs Other Months, Purchasing Power */}
       <div className="simple-cards-grid">
-        {/* Card 1: Basket Value & Weak Median */}
         <div className="simple-card hero-gus-budget">
           <div className="simple-card-badge">Cena koszyka (GUS BDL)</div>
           <div className="simple-card-value">
@@ -109,8 +105,6 @@ export default function GusSimplifiedView({
             Pojedynczy koszyk = <strong>{workHoursPerBasket} godz. pracy</strong>
           </div>
         </div>
-
-        {/* Card 2: Consumer Budget Share */}
         <div className="simple-card hero-budget-card">
           <div className="simple-card-badge">Ile budżetu zjada koszyk?</div>
           <div className="simple-card-value">
@@ -127,8 +121,6 @@ export default function GusSimplifiedView({
             ></div>
           </div>
         </div>
-
-        {/* Card 3: Consumer Earnings vs Other Months */}
         <div className="simple-card">
           <div className="simple-card-badge">Zarobki konsumenta</div>
           <div className="simple-card-value">
@@ -145,8 +137,6 @@ export default function GusSimplifiedView({
             </span>
           </div>
         </div>
-
-        {/* Card 4: Wage Growth vs Basket Inflation (Real Purchasing Power) */}
         <div className="simple-card">
           <div className="simple-card-badge">Siła nabywcza w czasie</div>
           <div className="simple-card-value">
@@ -164,8 +154,6 @@ export default function GusSimplifiedView({
           </div>
         </div>
       </div>
-
-      {/* Interactive Consumer Basket Budget Calculator (Same as Orlen!) */}
       <div className="simple-calculator-card gus-calc">
         <div className="calc-header">
           <div className="calc-icon-title">
@@ -229,12 +217,13 @@ export default function GusSimplifiedView({
           </div>
         </div>
       </div>
-
-      {/* Simplified Comparison Table of Key Essentials */}
       <div className="simple-recent-card gus-border-card">
         <div className="recent-header">
           <div>
-            <h3>Kluczowe produkty w koszyku ({latestChunk.label})</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+              <span className="table-mode-badge gus">TRYB UPROSZCZONY • KOSZYK</span>
+              <h3>Kluczowe produkty w koszyku ({latestChunk.label})</h3>
+            </div>
             <p>Ceny podstawowych towarów konsumpcyjnych i ich udział w koszyku.</p>
           </div>
           <div className="recent-actions">

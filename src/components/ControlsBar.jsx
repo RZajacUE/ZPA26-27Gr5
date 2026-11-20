@@ -41,9 +41,7 @@ export default function ControlsBar({
 
   return (
     <div className="controls-panel">
-      {/* Top row: Search and Export Buttons */}
       <div className="controls-row-main">
-        {/* Search bar */}
         <div className="search-bar-wrapper">
           <FaMagnifyingGlass className="search-icon" size={16} />
           <input
@@ -66,8 +64,6 @@ export default function ControlsBar({
             </button>
           )}
         </div>
-
-        {/* Download Buttons */}
         <div className="export-actions-group">
           <button
             type="button"
@@ -92,8 +88,6 @@ export default function ControlsBar({
           </button>
         </div>
       </div>
-
-      {/* Middle row: Rule Filters with React Icons */}
       <div className="rules-filter-bar">
         <span className="rules-label">Filtruj wg reguły:</span>
         <div className="rules-pills-list">
@@ -110,8 +104,6 @@ export default function ControlsBar({
           ))}
         </div>
       </div>
-
-      {/* Bottom row: Selection Toolbar */}
       <div className="selection-toolbar">
         <div className="selection-info">
           <span className="selection-text">

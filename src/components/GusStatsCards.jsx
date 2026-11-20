@@ -28,7 +28,6 @@ export default function GusStatsCards({ summary, startDate, endDate }) {
 
   return (
     <div className="gus-stats-grid">
-      {/* Card 1: Weak / Weekly Median Price (Highlighted Hero Card) */}
       <div className="gus-stat-card hero-median-card">
         <div className="stat-card-header">
           <div className="stat-icon-wrapper median-icon-bg">
@@ -58,8 +57,6 @@ export default function GusStatsCards({ summary, startDate, endDate }) {
           </div>
         </div>
       </div>
-
-      {/* Card 2: Total Consumer Basket Value */}
       <div className="gus-stat-card">
         <div className="stat-card-header">
           <div className="stat-icon-wrapper basket-icon-bg">
@@ -88,8 +85,6 @@ export default function GusStatsCards({ summary, startDate, endDate }) {
           </div>
         </div>
       </div>
-
-      {/* Card 3: Dynamic Price Change Over Years */}
       <div className="gus-stat-card">
         <div className="stat-card-header">
           <div className="stat-icon-wrapper trend-icon-bg">
@@ -116,8 +111,6 @@ export default function GusStatsCards({ summary, startDate, endDate }) {
           </div>
         </div>
       </div>
-
-      {/* Card 4: Fuel vs Food Comparison (Answers research problem) */}
       <div className="gus-stat-card fuel-food-card">
         <div className="stat-card-header">
           <div className="stat-icon-wrapper fuel-food-icon-bg">

@@ -47,9 +47,7 @@ export default function GusControlsBar({
 
   return (
     <div className="gus-controls-panel">
-      {/* Top Row: Date controls and chunking frequency */}
       <div className="gus-controls-row-top">
-        {/* Date Range Settings */}
         <div className="gus-date-range-group">
           <div className="gus-control-label">
             <FaCalendarDays size={14} className="control-icon" />
@@ -85,8 +83,6 @@ export default function GusControlsBar({
                 className={`gus-date-input ${isEndingPresent ? 'input-disabled' : ''}`}
               />
             </div>
-
-            {/* Present Date Toggle */}
             <button
               type="button"
               className={`gus-present-toggle-btn ${isEndingPresent ? 'toggle-active' : ''}`}
@@ -95,12 +91,14 @@ export default function GusControlsBar({
             >
               <FaClock size={12} />
               <span>Ustaw do dnia dzisiejszego</span>
-              {isEndingPresent && <span className="active-pip">✓</span>}
+              {isEndingPresent && (
+                <span className="active-pip" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  <FaCheck size={9} />
+                </span>
+              )}
             </button>
           </div>
         </div>
-
-        {/* Frequency Chunks Selector */}
         <div className="gus-frequency-group">
           <div className="gus-control-label">
             <FaSliders size={14} className="control-icon" />
@@ -121,8 +119,6 @@ export default function GusControlsBar({
             ))}
           </div>
         </div>
-
-        {/* CSV Download Action Button */}
         <div className="gus-download-action">
           <button
             type="button"
@@ -139,8 +135,6 @@ export default function GusControlsBar({
           </button>
         </div>
       </div>
-
-      {/* Bottom Row: Basket category filter & Selection controls */}
       <div className="gus-controls-row-bottom">
         <div className="gus-basket-filter-group">
           <span className="gus-filter-label">
@@ -164,8 +158,6 @@ export default function GusControlsBar({
             {activeProductsCount} reprezentantów w koszyku
           </span>
         </div>
-
-        {/* Bulk table selection tools */}
         <div className="gus-selection-tools">
           <span className="selection-count-text">
             Zaznaczono: <strong>{selectedChunksCount}</strong> / {totalChunks}

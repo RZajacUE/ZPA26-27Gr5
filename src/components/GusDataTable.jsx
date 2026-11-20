@@ -86,9 +86,9 @@ export default function GusDataTable({
 
   return (
     <div className="gus-table-card">
-      {/* Table Toolbar */}
       <div className="gus-table-toolbar">
         <div className="toolbar-left">
+          <span className="table-mode-badge gus">TRYB ZAAWANSOWANY • GUS BDL</span>
           <div className="table-search-input-wrapper">
             <FaMagnifyingGlass className="search-icon" size={14} />
             <input
@@ -126,13 +126,10 @@ export default function GusDataTable({
           </label>
         </div>
       </div>
-
-      {/* Responsive Table Container */}
       <div className="gus-table-wrapper">
         <table className="gus-data-table">
           <thead>
             <tr>
-              {/* Checkbox Header */}
               <th className="th-checkbox">
                 <input
                   type="checkbox"
@@ -143,8 +140,6 @@ export default function GusDataTable({
                   className="gus-checkbox"
                 />
               </th>
-
-              {/* Date / Period Column */}
               <th className="th-sortable" onClick={() => handleSort('date')}>
                 <div className="th-content">
                   <FaCalendarWeek size={12} />
@@ -152,8 +147,6 @@ export default function GusDataTable({
                   {renderSortIcon('date')}
                 </div>
               </th>
-
-              {/* Basket Total Column */}
               <th className="th-sortable" onClick={() => handleSort('basketTotal')}>
                 <div className="th-content">
                   <FaBasketShopping size={12} />
@@ -161,8 +154,6 @@ export default function GusDataTable({
                   {renderSortIcon('basketTotal')}
                 </div>
               </th>
-
-              {/* Weak / Weekly Median Price Column */}
               <th className="th-sortable th-highlight" onClick={() => handleSort('weakMedianPrice')}>
                 <div className="th-content">
                   <FaScaleBalanced size={12} />
@@ -170,30 +161,22 @@ export default function GusDataTable({
                   {renderSortIcon('weakMedianPrice')}
                 </div>
               </th>
-
-              {/* Mean Price */}
               <th>
                 <div className="th-content">
                   <span>Średnia cena</span>
                 </div>
               </th>
-
-              {/* Range Min - Max */}
               <th>
                 <div className="th-content">
                   <span>Min – Max</span>
                 </div>
               </th>
-
-              {/* Percent Change */}
               <th className="th-sortable" onClick={() => handleSort('percentChange')}>
                 <div className="th-content">
                   <span>Zmiana %</span>
                   {renderSortIcon('percentChange')}
                 </div>
               </th>
-
-              {/* Key Sample Products (Bread, Butter, Eggs, Fuel Pb95) */}
               <th title="Chleb pszenno-żytni">Chleb (0.6kg)</th>
               <th title="Masło ekstra 82%">Masło (200g)</th>
               <th title="Jaja kurze 10szt">Jaja (10szt)</th>
@@ -223,7 +206,6 @@ export default function GusDataTable({
                     className={`gus-table-row ${isSelected ? 'row-selected' : ''}`}
                     onClick={() => onToggleChunk(chunk._id)}
                   >
-                    {/* Checkbox cell */}
                     <td className="td-checkbox" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
@@ -232,43 +214,29 @@ export default function GusDataTable({
                         className="gus-checkbox"
                       />
                     </td>
-
-                    {/* Date / Label cell */}
                     <td className="td-date">
                       <span className="date-strong">{chunk.date}</span>
                       <span className="label-sub">{chunk.label}</span>
                     </td>
-
-                    {/* Basket Total cell */}
                     <td className="td-basket-total">
                       <strong>{chunk.basketTotal.toFixed(2)} zł</strong>
                     </td>
-
-                    {/* Weak Median Price cell (Hero column) */}
                     <td className="td-median-highlight">
                       <span className="median-badge">
                         {chunk.weakMedianPrice.toFixed(2)} zł
                       </span>
                     </td>
-
-                    {/* Mean cell */}
                     <td className="td-mean">
                       {chunk.meanPrice.toFixed(2)} zł
                     </td>
-
-                    {/* Min - Max cell */}
                     <td className="td-range">
                       <span className="range-text">{chunk.minPrice.toFixed(2)} – {chunk.maxPrice.toFixed(2)} zł</span>
                     </td>
-
-                    {/* Percent change cell */}
                     <td className="td-change">
                       <span className={`change-tag ${isPositiveChange ? 'tag-pos' : 'tag-neg'}`}>
                         {isPositiveChange ? '+' : ''}{chunk.percentChange.toFixed(1)}%
                       </span>
                     </td>
-
-                    {/* Sample Product Prices */}
                     <td className="td-sample-price">{breadPrice ? `${breadPrice.toFixed(2)} zł` : '—'}</td>
                     <td className="td-sample-price">{butterPrice ? `${butterPrice.toFixed(2)} zł` : '—'}</td>
                     <td className="td-sample-price">{eggsPrice ? `${eggsPrice.toFixed(2)} zł` : '—'}</td>
@@ -280,8 +248,6 @@ export default function GusDataTable({
           </tbody>
         </table>
       </div>
-
-      {/* Pagination Footer */}
       <div className="gus-table-pagination">
         <div className="pagination-info">
           Strona <strong>{currentPage}</strong> z <strong>{totalPages}</strong> (Łącznie {sortedChunks.length} wpisów)

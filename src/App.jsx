@@ -5,6 +5,7 @@ import StatsCards from './components/StatsCards';
 import ControlsBar from './components/ControlsBar';
 import DataTable from './components/DataTable';
 import OrlenSimplifiedView from './components/OrlenSimplifiedView';
+import OrlenAnalysisView from './components/OrlenAnalysisView';
 import SlideMenu from './components/SlideMenu';
 import TableOfContents from './components/TableOfContents';
 import { OrlenMainLogo, OrlenAppLogo } from './components/OrlenLogos';
@@ -12,13 +13,193 @@ import { parseCsv, downloadRecordsAsCsv } from './utils/csvParser';
 import GusPortal from './components/GusPortal';
 import './App.css';
 
+export const AVAILABLE_ORLEN_DATASETS = [
+  {
+    id: 'orlen_paliwa_pb95_2026.csv',
+    name: 'orlen_paliwa_pb95_2026.csv (Eurosuper 95 - 2026)',
+    subfolder: 'orlen_paliwa',
+    fuelType: 'Pb95',
+    portal: 'ORLEN',
+    isCustom: false,
+  },
+  {
+    id: 'orlen_paliwa_on_2026.csv',
+    name: 'orlen_paliwa_on_2026.csv (Ekodiesel ON - 2026)',
+    subfolder: 'orlen_paliwa',
+    fuelType: 'ONEkodiesel',
+    portal: 'ORLEN',
+    isCustom: false,
+  },
+  {
+    id: 'orlen_paliwa_analiza_2019_2026.csv',
+    name: 'orlen_paliwa_analiza_2019_2026.csv (Pełna historia 2019–2026 & Model)',
+    subfolder: 'orlen_paliwa',
+    fuelType: 'ALL',
+    portal: 'ORLEN',
+    isCustom: false,
+  },
+  {
+    id: 'orlen_paliwa_wydarzenia.csv',
+    name: 'orlen_paliwa_wydarzenia.csv (Zdarzenia rynkowe i tarcza)',
+    subfolder: 'orlen_paliwa',
+    fuelType: 'EVENTS',
+    portal: 'ORLEN',
+    isCustom: false,
+  },
+];
+
+export const AVAILABLE_GUS_DATASETS = [
+  {
+    id: 'gus_zywnosc_analiza_koszyka_2019_2025.csv',
+    name: 'gus_zywnosc_analiza_koszyka_2019_2025.csv (Koszyk 13 dóbr konsumpcyjnych 2019–2025)',
+    subfolder: 'gus_zywnosc',
+    portal: 'GUS',
+    isCustom: false,
+  },
+  {
+    id: 'gus_zywnosc_wydarzenia.csv',
+    name: 'gus_zywnosc_wydarzenia.csv (Wydarzenia i tarcza 0% VAT na żywność)',
+    subfolder: 'gus_zywnosc',
+    portal: 'GUS',
+    isCustom: false,
+  },
+];
+
+export const DEFAULT_ORLEN_RECENT_FILES = [
+  {
+    id: 'orlen_paliwa_pb95_2026.csv',
+    name: 'orlen_paliwa_pb95_2026.csv (Eurosuper 95 - 2026)',
+    path: '/data/csv/orlen_paliwa/orlen_paliwa_pb95_2026.csv',
+    portal: 'ORLEN',
+    subfolder: 'orlen_paliwa',
+    fuelType: 'Pb95',
+  },
+  {
+    id: 'orlen_paliwa_on_2026.csv',
+    name: 'orlen_paliwa_on_2026.csv (Ekodiesel ON - 2026)',
+    path: '/data/csv/orlen_paliwa/orlen_paliwa_on_2026.csv',
+    portal: 'ORLEN',
+    subfolder: 'orlen_paliwa',
+    fuelType: 'ONEkodiesel',
+  },
+  {
+    id: 'orlen_paliwa_analiza_2019_2026.csv',
+    name: 'orlen_paliwa_analiza_2019_2026.csv (Pełna historia 2019–2026 & Model)',
+    path: '/data/csv/orlen_paliwa/orlen_paliwa_analiza_2019_2026.csv',
+    portal: 'ORLEN',
+    subfolder: 'orlen_paliwa',
+    fuelType: 'ALL',
+  },
+  {
+    id: 'orlen_paliwa_wydarzenia.csv',
+    name: 'orlen_paliwa_wydarzenia.csv (Zdarzenia rynkowe i tarcza)',
+    path: '/data/csv/orlen_paliwa/orlen_paliwa_wydarzenia.csv',
+    portal: 'ORLEN',
+    subfolder: 'orlen_paliwa',
+    fuelType: 'EVENTS',
+  },
+];
+
+export const DEFAULT_GUS_RECENT_FILES = [
+  {
+    id: 'gus_zywnosc_analiza_koszyka_2019_2025.csv',
+    name: 'gus_zywnosc_analiza_koszyka_2019_2025.csv (Koszyk 13 dóbr konsumpcyjnych 2019–2025)',
+    path: '/data/csv/gus_zywnosc/gus_zywnosc_analiza_koszyka_2019_2025.csv',
+    portal: 'GUS',
+    subfolder: 'gus_zywnosc',
+    category: 'BASKET',
+  },
+  {
+    id: 'gus_zywnosc_wydarzenia.csv',
+    name: 'gus_zywnosc_wydarzenia.csv (Wydarzenia i tarcza 0% VAT na żywność)',
+    path: '/data/csv/gus_zywnosc/gus_zywnosc_wydarzenia.csv',
+    portal: 'GUS',
+    subfolder: 'gus_zywnosc',
+    category: 'EVENTS',
+  },
+];
+
 export default function App() {
   const [activePortal, setActivePortal] = useState('ORLEN');
   const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      return localStorage.getItem('app_dark_mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const [orlenRecentFiles, setOrlenRecentFiles] = useState(() => {
+    try {
+      const stored = localStorage.getItem('app_recent_orlen_csv_files');
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return DEFAULT_ORLEN_RECENT_FILES;
+  });
+
+  const [gusRecentFiles, setGusRecentFiles] = useState(() => {
+    try {
+      const stored = localStorage.getItem('app_recent_gus_csv_files');
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return DEFAULT_GUS_RECENT_FILES;
+  });
+
+  useEffect(() => {
+    try {
+      if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('app_dark_mode', 'true');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('app_dark_mode', 'false');
+      }
+    } catch {
+      // ignore
+    }
+  }, [isDarkMode]);
 
   const handleTogglePortal = (mode) => {
     setActivePortal(mode);
   };
+
+  const handleToggleDarkMode = (val) => {
+    setIsDarkMode(typeof val === 'boolean' ? val : !isDarkMode);
+  };
+
+  const handleAddRecentFile = (fileItem) => {
+    const isGus = fileItem.portal === 'GUS' || fileItem.id.includes('gus') || fileItem.id.includes('zywnosc');
+    if (isGus) {
+      setGusRecentFiles(prev => {
+        const next = [
+          { ...fileItem, portal: 'GUS', lastUsed: new Date().toISOString() },
+          ...prev.filter(f => f.id !== fileItem.id)
+        ].slice(0, 10);
+        try { localStorage.setItem('app_recent_gus_csv_files', JSON.stringify(next)); } catch {}
+        return next;
+      });
+    } else {
+      setOrlenRecentFiles(prev => {
+        const next = [
+          { ...fileItem, portal: 'ORLEN', lastUsed: new Date().toISOString() },
+          ...prev.filter(f => f.id !== fileItem.id)
+        ].slice(0, 10);
+        try { localStorage.setItem('app_recent_orlen_csv_files', JSON.stringify(next)); } catch {}
+        return next;
+      });
+    }
+  };
+
+  const handleSelectRecentFile = (fileItem) => {
+    if (fileItem.portal === 'GUS' || fileItem.id.includes('gus') || fileItem.id.includes('zywnosc')) {
+      setActivePortal('GUS');
+    } else {
+      setActivePortal('ORLEN');
+    }
+  };
+
+  const activeRecentFiles = activePortal === 'GUS' ? gusRecentFiles : orlenRecentFiles;
 
   if (activePortal === 'GUS') {
     return (
@@ -27,6 +208,11 @@ export default function App() {
         onTogglePortal={handleTogglePortal}
         isSlideMenuOpen={isSlideMenuOpen}
         setIsSlideMenuOpen={setIsSlideMenuOpen}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={handleToggleDarkMode}
+        recentFiles={activeRecentFiles}
+        onAddRecentFile={handleAddRecentFile}
+        onSelectRecentFile={handleSelectRecentFile}
       />
     );
   }
@@ -36,11 +222,25 @@ export default function App() {
       onTogglePortal={handleTogglePortal} 
       isSlideMenuOpen={isSlideMenuOpen}
       setIsSlideMenuOpen={setIsSlideMenuOpen}
+      isDarkMode={isDarkMode}
+      onToggleDarkMode={handleToggleDarkMode}
+      recentFiles={activeRecentFiles}
+      onAddRecentFile={handleAddRecentFile}
+      onSelectRecentFile={handleSelectRecentFile}
     />
   );
 }
 
-function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSlideMenuOpen: propSetSlideMenuOpen }) {
+function OrlenApp({ 
+  onTogglePortal, 
+  isSlideMenuOpen: propSlideMenuOpen, 
+  setIsSlideMenuOpen: propSetSlideMenuOpen,
+  isDarkMode,
+  onToggleDarkMode,
+  recentFiles = [],
+  onAddRecentFile,
+  onSelectRecentFile
+}) {
   const [viewMode, setViewMode] = useState('SIMPLIFIED');
   const [internalSlideMenuOpen, setInternalSlideMenuOpen] = useState(false);
   const isSlideMenuOpen = propSlideMenuOpen !== undefined ? propSlideMenuOpen : internalSlideMenuOpen;
@@ -48,8 +248,11 @@ function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSli
   const fileInputRef = useRef(null);
 
   const [currentDataset, setCurrentDataset] = useState({
-    id: 'Orlen_pb95_2026.csv',
-    name: 'Orlen_pb95_2026.csv',
+    id: 'orlen_paliwa_pb95_2026.csv',
+    name: 'orlen_paliwa_pb95_2026.csv (Eurosuper 95 - 2026)',
+    subfolder: 'orlen_paliwa',
+    fuelType: 'Pb95',
+    portal: 'ORLEN',
     isCustom: false,
   });
 
@@ -81,18 +284,15 @@ function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSli
 
     const tryFetch = async () => {
       const pathsToTry = [
+        `/data/csv/orlen_paliwa/${currentDataset.id}`,
+        `/csv/orlen_paliwa/${currentDataset.id}`,
         `/data/csv/${currentDataset.id}`,
-        `/data/csv/${currentDataset.id.toLowerCase()}`,
         `/csv/${currentDataset.id}`,
-        `/csv/${currentDataset.id.toLowerCase()}`,
-        `/data/${currentDataset.id}`,
-        `/data/${currentDataset.id.toLowerCase()}`,
         `/${currentDataset.id}`,
-        `/${currentDataset.id.toLowerCase()}`,
-        `./data/csv/${currentDataset.id}`,
-        `./csv/${currentDataset.id}`,
-        `./${currentDataset.id}`,
-      ];
+        currentDataset.id === 'orlen_paliwa_pb95_2026.csv' ? '/Orlen_pb95_2026.csv' : null,
+        currentDataset.id === 'orlen_paliwa_on_2026.csv' ? '/orlen_on_2026.csv' : null,
+        currentDataset.id === 'orlen_paliwa_analiza_2019_2026.csv' ? '/analiza_cen_paliw.csv' : null,
+      ].filter(Boolean);
 
       for (const path of pathsToTry) {
         try {
@@ -110,7 +310,6 @@ function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSli
             }
           }
         } catch {
-          // fallback to next path
         }
       }
 
@@ -128,16 +327,19 @@ function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSli
   }, [currentDataset.id, currentDataset.isCustom]);
 
   const handleSelectDataset = (datasetId) => {
-    if (datasetId === currentDataset.id) return;
-    setCurrentDataset({
+    const found = AVAILABLE_ORLEN_DATASETS.find(d => d.id === datasetId) || {
       id: datasetId,
       name: datasetId,
+      subfolder: 'orlen_paliwa',
       isCustom: false,
-    });
+    };
+    setCurrentDataset(found);
+    if (onAddRecentFile) onAddRecentFile(found);
     setSearchQuery('');
     setActiveRule('ALL');
     setSelectedIds(new Set());
     setCurrentPage(1);
+    showToast(`Aktywowano zbiór: ${found.id}`);
   };
 
   const handleCustomFileUpload = (file) => {
@@ -151,11 +353,15 @@ function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSli
         const { headers: parsedHeaders, records: parsedRecords } = parseCsv(text);
         setHeaders(parsedHeaders);
         setAllRecords(parsedRecords);
-        setCurrentDataset({
+        const customItem = {
           id: `custom_${file.name}`,
-          name: file.name,
+          name: `${file.name} (Własny plik)`,
+          subfolder: 'custom',
+          portal: 'ORLEN',
           isCustom: true,
-        });
+        };
+        setCurrentDataset(customItem);
+        if (onAddRecentFile) onAddRecentFile(customItem);
         setSelectedIds(new Set());
         setSearchQuery('');
         setActiveRule('ALL');
@@ -374,6 +580,12 @@ function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSli
             onSwitchToAdvanced={() => setViewMode('ADVANCED')}
             onOpenSlideMenu={() => setIsSlideMenuOpen(true)}
           />
+        ) : viewMode === 'ANALYSIS' ? (
+          <OrlenAnalysisView
+            records={allRecords}
+            currentDataset={currentDataset}
+            onOpenSlideMenu={() => setIsSlideMenuOpen(true)}
+          />
         ) : (
           <>
             <TableOfContents 
@@ -460,7 +672,6 @@ function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSli
         </div>
       </footer>
 
-      {/* Hidden file input for slide menu upload */}
       <input
         type="file"
         ref={fileInputRef}
@@ -475,7 +686,6 @@ function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSli
         style={{ display: 'none' }}
       />
 
-      {/* Slide Menu Drawer */}
       <SlideMenu
         isOpen={isSlideMenuOpen}
         onClose={() => setIsSlideMenuOpen(false)}
@@ -483,6 +693,16 @@ function OrlenApp({ onTogglePortal, isSlideMenuOpen: propSlideMenuOpen, setIsSli
         onTogglePortal={onTogglePortal}
         viewMode={viewMode}
         onToggleViewMode={setViewMode}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={onToggleDarkMode}
+        recentFiles={recentFiles}
+        onSelectRecentFile={(fileItem) => {
+          if (fileItem.portal === 'GUS' || fileItem.id.includes('gus') || fileItem.id.includes('zywnosc')) {
+            onTogglePortal('GUS');
+          } else {
+            handleSelectDataset(fileItem.id);
+          }
+        }}
         currentDataset={currentDataset}
         onSelectDataset={handleSelectDataset}
         onUploadCsvClick={() => {

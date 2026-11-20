@@ -26,12 +26,12 @@ export default function ModeToggle({ activePortal, onTogglePortal, className = '
           aria-selected={activePortal === 'GUS'}
           className={`portal-toggle-pill ${activePortal === 'GUS' ? 'active-gus' : ''}`}
           onClick={() => onTogglePortal('GUS')}
-          title="Przełącz na portal Banku Danych Lokalnych GUS"
+          title="Przełącz na portal Główny Urząd Statystyczny (GUS)"
         >
           <div className="toggle-brand-logo">
             <GusEmblem height={18} alt="GUS" />
           </div>
-          <span className="toggle-brand-name">GUS BDL</span>
+          <span className="toggle-brand-name">GUS</span>
         </button>
       </div>
     </div>
